@@ -3,54 +3,38 @@
 
 module p3to3_tb();
     logic fcontrol;
-    logic fin0;
-    logic fin1;
-    logic fin2;
-    logic bin0;
-    logic bin1;
-    logic bin2;
-    logic fout0;
-    logic fout1;
-    logic fout2;
+    logic [2:0] fin;
+    logic [2:0] bin;
+    logic [2:0] fout;
     logic bcontrol;
-    logic bout0;
-    logic bout1;
-    logic bout2;
+    logic [2:0] bout;
 
   p3to3 test_p3to3(
     .fcontrol(fcontrol),
-    .fin0(fin0),
-    .fin1(fin1),
-    .fin2(fin2),
-    .bin0(bin0),
-    .bin1(bin1),
-    .bin2(bin2),
-    .fout0(fout0),
-    .fout1(fout1),
-    .fout2(fout2),
+    .fin(fin),
+    .bin(bin),
+    .fout(fout),
     .bcontrol(bcontrol),
-    .bout0(bout0),
-    .bout1(bout1),
-    .bout2(bout2)
+    .bout(bout)
   );
 
   initial begin
     $display("\n--------\nStarting Simulation!");
 
     #5
-    {fcontrol, fin0, fin1, fin2} = 4'b1000;
+    {fcontrol, fin} = 4'b1000;
     #5
-    $display("%b", {fout0, fout1, fout2});
+    $display("%b", fout);
 
     #5
-    {fcontrol, fin0, fin1, fin2} = 4'b0010;
+    {fcontrol, fin} = 4'b0010;
     #5
-    $display("%b", {fout0, fout1, fout2});
+    $display("%b", fout);
 
     #5
-    {bin0, bin1, bin2} = 3'b110;
+    bin = 3'b110;
     #5
-    $display("%b", {bout0, bout1, bout2, bcontrol});
+    $display("%b", {bout, bcontrol});
 
     $finish;
   end
