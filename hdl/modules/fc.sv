@@ -2,7 +2,7 @@
 `default_nettype none // prevents system from inferring an undeclared logic (good practice)
 
 module fc #(
-    parameter N = 27;
+    parameter N = 27
  )
  
  (
@@ -17,10 +17,10 @@ module fc #(
 
     output logic fd_prop_done, // signal that the forward propagation is done
     output logic bk_prop_done, // signal that the backward propagation is done
-    output logic [N-1:0] control_out [0:NUM_LAYERS-1] // to get the saved weights
+    output logic [N-1:0] control_out [0:NUM_LAYERS-1], // to get the saved weights
 
     output logic [N-1:0] fout,
-    output logic [N-1:0] bout,
+    output logic [N-1:0] bout
   );
 
   localparam NUM_LAYERS = clog3(N);
@@ -34,12 +34,13 @@ module fc #(
   assign fd_prop_done = fd_prop_dones[NUM_LAYERS];
   logic [NUM_LAYERS:0] bk_prop_dones;
   assign bk_prop_done = bk_prop_dones[0];
-  assign bk_prop_dones[N] = bk_prop;
+  assign bk_prop_dones[NUM_LAYERS] = bk_prop;
 
   genvar l, i;
   generate
     for(l=0; l < NUM_LAYERS; l=l+1) begin
         for(i=0; i<N; i=i+1)begin
+          if (z3(i,l))begin
             unit3to3 #(l, i) unit(
               .rst_in(rst_in),
               .clk_in(clk_in),
@@ -47,19 +48,20 @@ module fc #(
               .fd_prop(fd_prop),
               .bk_prop(bk_prop),
               .fin0(fh[l][i]),
-              .fin1(fh[l][(i-3**l)%N]),
-              .fin2(fh[l][(i+3**l)%N]),
+              .fin1(fh[l][p3(i,l)%N]),
+              .fin2(fh[l][n3(i,l)%N]),
               .bin0(bh[l+1][i]),
-              .bin1(bh[l+1][(i-3**l)%N]),
-              .bin2(bh[l+1][(i+3**l)%N]),
+              .bin1(bh[l+1][p3(i,l)%N]),
+              .bin2(bh[l+1][n3(i,l)%N]),
               .fout0(fh[l+1][i]),
-              .fout1(fh[l+1][(i-3**l)%N]),
-              .fout2(fh[l+1][(i+3**l)%N]),
+              .fout1(fh[l+1][p3(i,l)%N]),
+              .fout2(fh[l+1][n3(i,l)%N]),
               .bout0(bh[l][i]),
-              .bout1(bh[l][(i-3**l)%N]),
-              .bout2(bh[l][(i+3**l)%N]),
+              .bout1(bh[l][p3(i,l)%N]),
+              .bout2(bh[l][n3(i,l)%N]),
               .control_out(control_out[l][i])
             );
+          end
         end
 
         signal_delay fd_layer_done(

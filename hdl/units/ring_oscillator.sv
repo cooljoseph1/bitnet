@@ -2,7 +2,7 @@
 `default_nettype none // prevents system from inferring an undeclared logic (good practice)
  
 module ring_oscillator (
-    output logic x;
+    output logic x
   );
 
   logic y, z;

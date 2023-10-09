@@ -61,7 +61,6 @@ module unit3to2 (
     if (rst_in) begin
       fout0 <= 0;
       fout1 <= 0;
-      fout2 <= 0;
       bout0 <= 0;
       bout1 <= 0;
       bout2 <= 0;
@@ -70,7 +69,6 @@ module unit3to2 (
       if (fd_prop) begin
         fout0 <= new_fout0;
         fout1 <= new_fout1;
-        fout2 <= new_fout2;
       end
       if (bk_prop) begin
         bout0 <= new_bout0;

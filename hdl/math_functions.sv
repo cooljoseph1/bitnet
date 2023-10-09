@@ -14,3 +14,18 @@ function integer clog3(input integer value);
     
     return result;
 endfunction
+
+function integer n3(input integer x, input integer n);
+    // Next integer in ternary, if we increase the nth trit (no carrrying).
+    return x - (x % (3**(n+1))) + ((x + 3**n) % (3**(n+1)));
+endfunction
+
+function integer p3(input integer x, input integer n);
+    // Previous integer in ternary, if we decrease the nth trit (no carrrying).
+    return x - (x % (3**(n+1))) + ((x - 3**n) % (3**(n+1)));
+endfunction
+
+function bit z3(input integer x, input integer n);
+    // Is the nth trit a zero?
+    return ((x - 3**n) % (3**(n+1))) > (x % (3**(n+1)));
+endfunction

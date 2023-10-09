@@ -11,12 +11,14 @@ module signal_delay #(parameter N = 1)
 
     reg [N-1:0] shift_register; // Shift register to store delayed values
 
-    always @(posedge clk or posedge rst)
+    always @(posedge clk_in)
     begin
-        if (rst)
+        if (rst_in)
             shift_register <= {N{1'b0}}; // Reset the shift register to all zeros
-        else
+        else if (N>1)
             shift_register <= {shift_register[N-2:0], in_signal}; // Shift in the input signal
+        else
+            shift_register <= in_signal;
     end
 
     assign out_signal = shift_register[N-1]; // Output the delayed signal

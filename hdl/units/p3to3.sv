@@ -27,7 +27,7 @@ module p3to3 (
   
   // backward pass
   logic bout;
-  maj_gate backward(.control(0), .in0(bin0), .in1(bin1), .in2(bin2), .out(bout));
+  maj_gate backward(.control(1'b0), .in0(bin0), .in1(bin1), .in2(bin2), .out(bout));
   assign bout0 = bout;
   assign bout1 = bout;
   assign bout2 = bout;

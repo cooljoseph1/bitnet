@@ -2,9 +2,8 @@
 `default_nettype none // prevents system from inferring an undeclared logic (good practice)
 
 module down3 #(
-    parameter N = 27;
+    parameter N = 27
  )
- 
  (
     input wire clk_in,
     input wire rst_in,
