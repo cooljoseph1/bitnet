@@ -1,12 +1,12 @@
 `timescale 1ns / 1ps
 `default_nettype none // prevents system from inferring an undeclared logic (good practice)
- 
+
 module accum #(
-    parameter THRESHOLD=192,
-    parameter PUSH_DOWN=10 // every 10 turns subtract one from the count. This is to avoid random walks making it trigger
+    parameter THRESHOLD=255,
+    parameter PUSH_DOWN=16 // every 16 turns subtract one from the count. This is to avoid random walks making it trigger
   )(
-    input wire rst_in,
     input wire clk_in,
+    input wire rst_in,
     input wire prop_in,
     input wire inc,
     output logic trigger
