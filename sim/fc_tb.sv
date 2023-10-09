@@ -11,7 +11,7 @@ module fc_tb();
   logic [8:0] bin;
   logic [8:0] fout;
   logic [8:0] bout;
-  logic [8:0] control_out [0:1];
+  logic [1:0][2:0] control_out;
 
   fc #(.N(9)) test_fc(
     .rst_in(rst_in),
@@ -27,7 +27,7 @@ module fc_tb();
   );
 
   always begin
-      #3;
+      #10;
       oscillator = !oscillator;
   end
 
@@ -39,8 +39,9 @@ module fc_tb();
   assign bin = ~fin ^ fout;
   
   initial begin
+    $dumpfile("fc.vcd"); //file to store value change dump (vcd)
+    $dumpvars(1,test_fc);
     $display("\n--------\nStarting Simulation!");
-
     fin = 9'b111000111;
     fd_prop = 0;
     bk_prop = 0;
@@ -53,6 +54,7 @@ module fc_tb();
     #1000
     $display("%b", fout);
     $display("%b", control_out[0]);
+    $display("%b", control_out[1]);
     $finish;
   end
 endmodule // fc_tb
