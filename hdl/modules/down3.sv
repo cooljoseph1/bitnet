@@ -28,6 +28,9 @@ module down3 #(
   logic [PADDED_N-1:0] padded_fin;
   assign padded_fin[N-1:0] = fin;
 
+  logic [PADDED_N-1:0] padded_bout;
+  assign bout = padded_bout[N-1:0];
+
   generate
     if (PADDED_N == 1) begin
       assign padded_fin[PADDED_N-1] = 0;
@@ -36,25 +39,25 @@ module down3 #(
       assign padded_fin[PADDED_N-2] = 1;
     end
   endgenerate
-  
+
   genvar i;
   generate
-    for (i = 0; i < PADDED_N; i=i+3) begin
-      unit3to1 unit(
+    for (i = 0; 3 * i < (PADDED_N - 2); i = i + 1) begin
+      unit3to1 down_unit(
         .rst_in(rst_in),
         .clk_in(clk_in),
         .oscillator(oscillator),
         .fd_prop(fd_prop),
         .bk_prop(bk_prop),
-        .fin0(fin[(i-1)%PADDED_N]),
-        .fin1(fin[i]),
-        .fin2(fin[(i+1)%PADDED_N]),
-        .bin(bin[i/3]),
-        .fout(fout[i/3]),
-        .bout0(bout[(i-1)%N]),
-        .bout1(bout[i]),
-        .bout2(bout[(i+1)%N]),
-        .control_out(control_out[i/3])
+        .fin0(padded_fin[3 * i]),
+        .fin1(padded_fin[3 * i + 1]),
+        .fin2(padded_fin[3 * i + 2]),
+        .bin(bin[i]),
+        .fout(fout[i]),
+        .bout0(padded_bout[3 * i]),
+        .bout1(padded_bout[3 * i + 1]),
+        .bout2(padded_bout[3 * i + 2]),
+        .control_out(control_out[i])
       );
     end
   endgenerate
