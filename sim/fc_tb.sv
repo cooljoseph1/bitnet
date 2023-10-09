@@ -2,9 +2,9 @@
 `default_nettype none
 
 module fc_tb();
-  logic rst_in;
-  logic clk_in;
-  logic oscillator;
+  logic rst_in = 0;
+  logic clk_in = 0;
+  logic oscillator = 0;
   logic fd_prop;
   logic bk_prop;
   logic [8:0] fin;
@@ -42,10 +42,17 @@ module fc_tb();
     $display("\n--------\nStarting Simulation!");
 
     fin = 9'b111000111;
+    fd_prop = 0;
+    bk_prop = 0;
+    rst_in = 1;
+    #10
+    rst_in = 0;
     fd_prop = 1;
+    #10
 
     #1000
-    $display("%8b", control_out);
+    $display("%b", fout);
+    $display("%b", control_out[0]);
     $finish;
   end
 endmodule // fc_tb
