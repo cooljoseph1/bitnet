@@ -1,5 +1,6 @@
 function integer clog3(input integer value);
-    integer result = 0;
+    integer result;
+    result = 0;
     
     if (value <= 0) begin
         // Handle invalid input

@@ -41,24 +41,32 @@ module fc #(
     for(l=0; l < NUM_LAYERS; l=l+1) begin
         for(i=0; i<N; i=i+1)begin
           if (z3(i,l))begin
-            unit3to3 #(l, i) unit(
+            unit3to3 unit(
               .rst_in(rst_in),
               .clk_in(clk_in),
               .oscillator(oscillator),
               .fd_prop(fd_prop),
               .bk_prop(bk_prop),
-              .fin0(fh[l][i]),
-              .fin1(fh[l][p3(i,l)%N]),
-              .fin2(fh[l][n3(i,l)%N]),
-              .bin0(bh[l+1][i]),
-              .bin1(bh[l+1][p3(i,l)%N]),
-              .bin2(bh[l+1][n3(i,l)%N]),
-              .fout0(fh[l+1][i]),
-              .fout1(fh[l+1][p3(i,l)%N]),
-              .fout2(fh[l+1][n3(i,l)%N]),
-              .bout0(bh[l][i]),
-              .bout1(bh[l][p3(i,l)%N]),
-              .bout2(bh[l][n3(i,l)%N]),
+              .fin({
+                fh[l][i],
+                fh[l][p3(i,l)%N],
+                fh[l][n3(i,l)%N]
+              }),
+              .bin({
+                bh[l+1][i],
+                bh[l+1][p3(i,l)%N],
+                bh[l+1][n3(i,l)%N]
+              }),
+              .fout({
+                fh[l+1][i],
+                fh[l+1][p3(i,l)%N],
+                fh[l+1][n3(i,l)%N]
+              }),
+              .bout({
+                bh[l][i],
+                bh[l][p3(i,l)%N],
+                bh[l][n3(i,l)%N]
+              }),
               .control_out(control_out[l][i])
             );
           end

@@ -1,15 +1,13 @@
 `timescale 1ns / 1ps
 `default_nettype none // prevents system from inferring an undeclared logic (good practice)
  
-module maj_gate (
+module maj3_gate (
     input wire control,
-    input wire in0,
-    input wire in1,
-    input wire in2,
+    input wire [2:0] in,
     output logic out
   );
  
-  assign out = (in0 & in1) ^ (in1 & in2) ^ (in2 & in0) ^ control;
+  assign out = (in[0] & in[1]) ^ (in[1] & in[2]) ^ (in[2] & in[0]) ^ control;
  
-endmodule // maj_gate
+endmodule // maj3_gate
 `default_nettype wire

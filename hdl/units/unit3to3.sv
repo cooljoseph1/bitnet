@@ -7,19 +7,14 @@ module unit3to3 (
     input wire oscillator,
     input wire fd_prop,
     input wire bk_prop,
-    input wire fin0,
-    input wire fin1,
-    input wire fin2,
-    input wire bin0,
-    input wire bin1,
-    input wire bin2,
-    output logic fout0,
-    output logic fout1,
-    output logic fout2,
-    output logic bout0,
-    output logic bout1,
-    output logic bout2,
-    output logic control_out // to get the saved weight
+
+    input wire [2:0] fin,
+    input wire [2:0] bin,
+
+    output logic control_out, // to get the saved weight
+
+    output logic [2:0] fout,
+    output logic [2:0] bout
   );
 
   logic control;
@@ -28,29 +23,17 @@ module unit3to3 (
   logic bcontrol;
   logic switch_control;
 
-  logic new_fout0;
-  logic new_fout1;
-  logic new_fout2;
-  logic new_bout0;
-  logic new_bout1;
-  logic new_bout2;
+  logic [2:0] new_fout;
+  logic [2:0] new_bout;
   logic new_bcontrol;
 
   p3to3 perc_gate(
     .fcontrol(control),
-    .fin0(fin0),
-    .fin1(fin1),
-    .fin2(fin2),
-    .bin0(bin0),
-    .bin1(bin1),
-    .bin2(bin2),
-    .fout0(new_fout0),
-    .fout1(new_fout1),
-    .fout2(new_fout2),
+    .fin(fin),
+    .bin(bin),
+    .fout(new_fout),
     .bcontrol(new_bcontrol),
-    .bout0(new_bout0),
-    .bout1(new_bout1),
-    .bout2(new_bout2)
+    .bout(new_bout)
   );
 
   accum grad_accumulator(
@@ -63,23 +46,15 @@ module unit3to3 (
 
   always_ff @(posedge clk_in) begin
     if (rst_in) begin
-      fout0 <= 0;
-      fout1 <= 0;
-      fout2 <= 0;
-      bout0 <= 0;
-      bout1 <= 0;
-      bout2 <= 0;
+      fout <= 3'b000;
+      bout <= 3'b000;
       control <= oscillator;
     end else begin
       if (fd_prop) begin
-        fout0 <= new_fout0;
-        fout1 <= new_fout1;
-        fout2 <= new_fout2;
+        fout <= new_fout;
       end
       if (bk_prop) begin
-        bout0 <= new_bout0;
-        bout1 <= new_bout1;
-        bout2 <= new_bout2;
+        bout <= new_bout;
         bcontrol <= new_bcontrol;
       end
       if (switch_control) begin

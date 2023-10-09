@@ -49,14 +49,10 @@ module down3 #(
         .oscillator(oscillator),
         .fd_prop(fd_prop),
         .bk_prop(bk_prop),
-        .fin0(padded_fin[3 * i]),
-        .fin1(padded_fin[3 * i + 1]),
-        .fin2(padded_fin[3 * i + 2]),
+        .fin(padded_fin[3 * i + 2:3 * i]),
         .bin(bin[i]),
         .fout(fout[i]),
-        .bout0(padded_bout[3 * i]),
-        .bout1(padded_bout[3 * i + 1]),
-        .bout2(padded_bout[3 * i + 2]),
+        .bout(padded_bout[3 * i + 2:3 * i]),
         .control_out(control_out[i])
       );
     end

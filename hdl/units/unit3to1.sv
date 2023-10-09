@@ -7,15 +7,14 @@ module unit3to1 (
     input wire oscillator,
     input wire fd_prop,
     input wire bk_prop,
-    input wire fin0,
-    input wire fin1,
-    input wire fin2,
+    
+    input wire [2:0] fin,
     input wire bin,
+
+    output logic control_out, // to get the saved weight
+
     output logic fout,
-    output logic bout0,
-    output logic bout1,
-    output logic bout2,
-    output logic control_out // to get the saved weight
+    output logic [2:0] bout
   );
 
 logic unused_fout1;
@@ -27,19 +26,11 @@ unit3to3 unit(
   .oscillator(oscillator),
   .fd_prop(fd_prop),
   .bk_prop(bk_prop),
-  .fin0(fin0),
-  .fin1(fin1),
-  .fin2(fin2),
-  .bin0(1'b0),
-  .bin1(1'b1),
-  .bin2(bin),
-  .fout0(fout),
-  .fout1(unused_fout1),
-  .fout2(unused_fout2),
-  .bout0(bout0),
-  .bout1(bout1),
-  .bout2(bout2),
-  .control_out(control_out)
+  .fin(fin),
+  .bin({bin, 1'b1, 1'b0}),
+  .control_out(control_out),
+  .fout({unused_fout2, unused_fout1, fout}),
+  .bout(bout)
 );
 
 endmodule // unit3to1

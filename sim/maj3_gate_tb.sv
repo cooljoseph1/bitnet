@@ -1,42 +1,38 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module maj_gate_tb();
+module maj3_gate_tb();
   logic control;
-  logic in0;
-  logic in1;
-  logic in2;
+  logic [2:0] in;
   logic out;
 
-  maj_gate test_maj(
+  maj3_gate test_maj(
     .control(control),
-    .in0(in0),
-    .in1(in1),
-    .in2(in2),
+    .in(in),
     .out(out)
   );
 
   initial begin
     $display("\n--------\nStarting Simulation!");
 
-    {control, in0, in1, in2} = 4'b1000;
+    {control, in} = 4'b1000;
     #5
     $display(out);
 
     #5
-    {control, in0, in1, in2} = 4'b0100;
+    {control, in} = 4'b0100;
     #5
     $display(out);
 
     #5
-    {control, in0, in1, in2} = 4'b0110;
+    {control, in} = 4'b0110;
     #5
     $display(out);
 
     #5
-    {control, in0, in1, in2} = 4'b1101;
+    {control, in} = 4'b1101;
     #5
     $display(out);
     $finish;
   end
-endmodule // maj_gate_tb
+endmodule // maj3_gate_tb
