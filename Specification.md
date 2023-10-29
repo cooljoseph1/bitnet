@@ -3,10 +3,8 @@ First, we need to implement a neural network architecture. Verilog's "typing" ac
 With a nonlinearity, you can build any neural net. The first two things to build are of course fully-connected layers and convolutional ones. The latter naturally comes from our non-linearity, while the former takes a little more thought. We've opted to do a kind of trit-flipping scheme:
 - Suppose you have $3^n$ inputs, indexed from $\overline{00\dots0}_3$ to $\overline{11\dots1}_3$.
 - For each trit position $0$ to $n-1$:
-	- Toggle the trit to get two other indices.
-	- XOR with weights.
-	- Perform the majority function.
-	- Repeat the bit three times.
+	- Toggle the trit to get two other indices, and perform the majority function on these.
+	- XOR with three weights.
 	- Overall we should have $3\cdot 3^{n-1} = 3^{n}$ new values for the next trit position.
 
 It's basically a tree, but instead of $3\to 1$ each layers, we keep the same number of nodes. I'm pretty sure for universality you need at least $O(N\log N)$ comparisons, so this hits that intuitive minimum. Also, note that if we didn't do the XOR'ing with weights, all the outputs would be the same (equals a kind of volume).
