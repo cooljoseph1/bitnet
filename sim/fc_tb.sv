@@ -55,6 +55,14 @@ module fc_tb();
     $display("%b", fout);
     $display("%b", control_out[0]);
     $display("%b", control_out[1]);
+
+    fd_prop = 0;
+    bk_prop = 1;
+    #1000
+    $display("%b", bout);
+    $display("%b", control_out[0]);
+    $display("%b", control_out[1]);
+
     $finish;
   end
 endmodule // fc_tb
