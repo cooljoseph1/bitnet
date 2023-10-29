@@ -49,6 +49,7 @@ module unit3to3 (
       fout <= 3'b000;
       bout <= 3'b000;
       control <= oscillator;
+      bcontrol <= 0;
     end else begin
       if (fd_prop) begin
         fout <= new_fout;

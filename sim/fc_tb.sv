@@ -42,17 +42,41 @@ module fc_tb();
     $dumpfile("fc.vcd"); //file to store value change dump (vcd)
     $dumpvars(1,test_fc);
     $display("\n--------\nStarting Simulation!");
-    fin = 9'b111000111;
+    fin = 9'b010000110;
     fd_prop = 0;
     bk_prop = 0;
     rst_in = 1;
-    #10
+    #10;
     rst_in = 0;
-    fd_prop = 1;
-    #10
 
-    #1000
+    bk_prop = 0;
+    fd_prop = 1;
+    #30;
+    fd_prop = 0;
+    bk_prop = 1;
+    #30;
+
+    $display("BEGINNING VALUES");
+    $display("%b", fin);
     $display("%b", fout);
+    $display("%b", bin);
+    $display("%b", bout);
+    $display("%b", control_out[0]);
+    $display("%b", control_out[1]);
+
+    for(int i = 0; i < 10000; i = i + 1) begin
+      bk_prop = 0;
+      fd_prop = 1;
+      #30;
+      fd_prop = 0;
+      bk_prop = 1;
+      #30;
+    end
+    $display("ENDING VALUES");
+    $display("%b", fin);
+    $display("%b", fout);
+    $display("%b", bin);
+    $display("%b", bout);
     $display("%b", control_out[0]);
     $display("%b", control_out[1]);
 
