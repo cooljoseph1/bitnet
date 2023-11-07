@@ -32,7 +32,7 @@ One thing we need to be careful about is the input/output bit structure. If we s
 - Combinational
 - Implements the majority function, then adds weights.
 - Inputs: `[2:0] x_in, [2:0] w_in`
-- Outputs: `[2:0] x_out`.
+- Outputs: `[2:0] x_out`. 
 
 **Interleave Layer:**
 - Combinational
