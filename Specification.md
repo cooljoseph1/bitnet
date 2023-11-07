@@ -28,18 +28,18 @@ One thing we need to be careful about is the input/output bit structure. If we s
 **BRAM:**
 - We'll use the one you gave us, one for data, one for weights, and another for weight accumulating (see below).
 
-**3-in-3-out:**
+**3-Maj:**
 - Combinational
-- Implements the majority function, then adds weights.
+- XOR's the inputs with weights and takes the majority value.
 - Inputs: `[2:0] x_in, [2:0] w_in`
-- Outputs: `[2:0] x_out`. 
+- Outputs: `x_out`. 
 
 **Interleave Layer:**
 - Combinational
 - Parameters: `N`
 - Inputs: `[N-1:0] x_in, [N-1:0] w_in, trit_pos`
 - Outputs: `[N-1:0] x_out`.
-- We can actually implement the backwards pass by sending $$x_\text{in} = \text{gradient},\qquad w_\text{in} = 0,\qquad \text{trit pos} = \log_3(N) - 1 - \text{trit pos}.$$
+- We can actually implement the backwards pass by sending $$x_\text{in} = \text{gradient},\qquad w_\text{in} = x_\text{in},\qquad \text{trit pos} = \log_3(N) - 1 - \text{trit pos}.$$
 **Fully Connected Layer:**
 - Combinational
 - Parameters: `N`
