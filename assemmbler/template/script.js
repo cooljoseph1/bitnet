@@ -6,7 +6,7 @@ function assemble() {
     let machineCode = '';
 
     for (let i = 0; i < inputCode.length; i++) {
-        const instruction = inputCode[i].trim().toUpperCase();
+        const instruction = inputCode[i].trim().replaceAll(' ', '').toUpperCase();
 
         if (instructionDictionary.hasOwnProperty(instruction)) {
             machineCode += instructionDictionary[instruction];
@@ -38,7 +38,7 @@ function assembleAndUpdateLineNumbers() {
     let invalidInstructionIndexes = [];
 
     lines.forEach((line, index) => {
-        const instruction = line.trim().toUpperCase();
+        const instruction = line.trim().replaceAll(' ', '').toUpperCase();
         if (!instructionDictionary.hasOwnProperty(instruction)) {
             invalidInstructionIndexes.push(index + 1);
         }
