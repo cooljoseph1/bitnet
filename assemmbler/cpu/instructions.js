@@ -36,8 +36,12 @@ var instructionSet = [
     "PUSH Y",
     "POP X",
     "POP Y",
-    "Y = X ^ Y",
     "X = X ^ Y",
+    "Y = X ^ Y",
+    "X = X & Y",
+    "Y = X & Y",
+    "X = X | Y",
+    "Y = X | Y",
     "FIX X", // sets X[i] = 0 if the trit in position TRIT of i is a 2
     "FIX Y", // sets Y[i] = 0 if the trit in position TRIT of i is a 2
     "RAND X", // sets X[i] = {a random nuber} if the trit in position TRIT of i is a 2
