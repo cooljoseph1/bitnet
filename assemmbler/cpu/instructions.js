@@ -16,7 +16,6 @@ var instructionSet = [
     "TRIT = 14",
     "TRIT = 15",
     "I = 0",
-    "I++",
     "D++",
     "D--",
     "A++",
