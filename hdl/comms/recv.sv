@@ -1,32 +1,61 @@
-module recv #(
-    parameter REGISTER_SIZE = 1024;
-    parameter CLK_BAUD_RATIO = 8;
-) (
-    input wire clk_in,
-    input wire rst_in,
-    input wire receiving_in,
-    input wire tx_in,
-    output logic busy_out,
-    output logic [REGISTER_SIZE-1] register_out
-  );
+// Receive multiple frames (usually one frame = one byte)
 
-  logic [$clog2(CLK_BAUD_RATIO)-1:0] baud_checker;
-  logic [$clog2(REGISTER_SIZE)-1:0] counter;
-  always_ff @(posedge clk_in)begin
-    baud_checker <= baud_checker == CLK_BAUD_RATIO-1? 0 : baud_checker + 1;
-    if (rst_in)begin
-      baud_checker <= 0;
+module recv #(
+  parameter CLK_BAUD_RATIO = 25,
+  parameter FRAME_SIZE = 8,
+  parameter FRAMES = 2
+) (
+  input wire clk_in,
+  input wire rst_in,
+  input wire receive_in,
+  input wire rx_in,
+  output logic [DATA_SIZE-1:0] data_out,
+  output logic new_data_out,
+  output logic busy_out
+ );
+
+ localparam DATA_SIZE = FRAME_SIZE * FRAMES;
+
+ logic [$clog2(CLK_BAUD_RATIO)-1:0] baud_checker;
+ logic [$clog2(DATA_SIZE+1)-1:0] counter;
+ logic [FRAME_SIZE-1:0] frame;
+ logic new_frame;
+
+ rx #(
+  .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
+  .DATA_SIZE(FRAME_SIZE)
+ ) read_frame (
+  .clk_in(clk_in),
+  .rst_in(rst_in),
+  .rx_in(rx_in),
+  .data_out(frame),
+  .new_data_out(new_frame)
+ );
+
+ logic [DATA_SIZE-1:0] data;
+ integer i;
+
+ always_ff @(posedge clk_in)begin
+  baud_checker <= baud_checker == CLK_BAUD_RATIO-1? 0 : baud_checker + 1;
+  new_data_out <= 0;
+  if (rst_in)begin
+   baud_checker <= 0;
+   counter <= 0;
+   busy_out <= 0;
+  end else if (!busy_out && receive_in)begin
+    busy_out <= 1;
+    counter <= 0;
+  end else if (counter == DATA_SIZE)begin
+      busy_out <= 0;
+      new_data_out <= 1;
       counter <= 0;
-    end else if (receiving_in && baud_checker == 0) begin
-      counter <= counter + 1;
-      busy_out <= 1;
-      if (counter == REGISTER_SIZE - 1) begin
-        counter <= 0;
-        busy_out <= 0;
-      end else begin
-        register_out[counter] <= tx_in;
-      end
+      data_out <= data;
+  end else if (busy_out && new_frame)begin
+    for (i=0; i<FRAME_SIZE; i = i+1)begin
+      data[counter+i] <= frame[i];
     end
+    counter <= counter + FRAME_SIZE;
   end
+ end
 
 endmodule

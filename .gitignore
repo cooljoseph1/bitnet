@@ -3,3 +3,4 @@
 .Xil/*
 *.vcd
 *.out
+obj/

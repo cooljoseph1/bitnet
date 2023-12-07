@@ -1,34 +1,39 @@
 module rx #(
-    parameter CLK_BAUD_RATIO = 8;
+  parameter CLK_BAUD_RATIO = 25,
+  parameter DATA_SIZE = 8
 ) (
-    input wire clk_in,
-    input wire rst_in,
-    input wire tx_in,
-    output op op_code_out,
-  );
+  input wire clk_in,
+  input wire rst_in,
+  input wire rx_in,
+  output logic [DATA_SIZE-1:0] data_out,
+  output logic new_data_out,
+  output logic busy_out
+ );
 
-    logic receiving;
-    op op_code;
-    logic [$clog2(CLK_BAUD_RATIO)-1:0] baud_checker;
-    logic [1:0] counter;
-    always_ff @(posedge clk_in)begin
-        baud_checker <= baud_checker == CLK_BAUD_RATIO-1? 0 : baud_checker + 1;
-        if (rst_in)begin
-            receiving <= 0;
-            op_code <= 0;
-            baud_checker <= 0;
-            counter <= 0;
-        end else if (baud_checker == 0) begin
-            if (!receiving && tx_in) begin // start receiving
-                receiving <= 0;
-                counter <= 0;
-            end else if (receiving) begin
-                counter <= counter + 1;
-                op_code_out[counter] <= tx_in;
-                if (counter == 3) begin
-                    receiving <= 0;
-                end
-            end
+  logic [$clog2(CLK_BAUD_RATIO)-1:0] baud_checker;
+  logic [$clog2(DATA_SIZE+1)-1:0] counter;
+  logic [DATA_SIZE-1:0] data;
+  always_ff @(posedge clk_in)begin
+    baud_checker <= baud_checker == CLK_BAUD_RATIO-1? 0 : baud_checker + 1;
+    new_data_out <= 0;
+    if (rst_in)begin
+      busy_out <= 0;
+      baud_checker <= 0;
+      counter <= 0;
+    end else if (baud_checker == 0) begin
+      if (!busy_out && !rx_in) begin // start busy_out
+        busy_out <= 1;
+        counter <= 0;
+      end else if (busy_out) begin
+        counter <= counter + 1;
+        if (counter == DATA_SIZE)begin
+          busy_out <= 0;
+          new_data_out <= 1;
+          data_out <= data;
+        end else begin
+          data[counter] <= rx_in;
         end
+      end
     end
+  end
 endmodule
