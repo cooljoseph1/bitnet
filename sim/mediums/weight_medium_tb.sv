@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 `default_nettype none
 
-module bram_wrapper_tb();
+module weight_medium_tb();
   logic clk_in;
   logic rst_in;
 
@@ -23,8 +23,8 @@ module bram_wrapper_tb();
 
 
   logic [ADDR_SIZE-1:0] addr_in;
-  logic [WIDTH-1:0] data_out;
-  logic [WIDTH-1:0] data_in;
+  logic [WIDTH-1:0] weight_out;
+  logic [WIDTH-1:0] weight_in;
   logic write_enable;
   logic finished_out;
 
@@ -54,11 +54,11 @@ module bram_wrapper_tb();
   );
 
 
-  bram_wrapper #(
+  weight_medium #(
     .ADDRS(ADDRS),
     .BRAM_WIDTH(BRAM_WIDTH),
     .PIECES(PIECES)
-  ) test_bram_wrapper (
+  ) test_weight_medium (
     .clk_in(clk_in),
     .rst_in(rst_in),
     
@@ -69,8 +69,8 @@ module bram_wrapper_tb();
     .bram_din(bram_din),
 
     .addr_in(addr_in),
-    .data_out(data_out),
-    .data_in(data_in),
+    .weight_out(weight_out),
+    .weight_in(weight_in),
     .write_enable(write_enable),
     .finished_out(finished_out)
   );
@@ -81,8 +81,8 @@ module bram_wrapper_tb();
   end
 
   initial begin
-    $dumpfile("vcd/mediums/bram_wrapper_tb.vcd");
-    $dumpvars(1,test_bram_wrapper);
+    $dumpfile("vcd/mediums/weight_medium_tb.vcd");
+    $dumpvars(1,test_weight_medium);
     $display("\n--------\nStarting Simulation!");
     clk_in = 0;
     rst_in = 1;
@@ -92,7 +92,7 @@ module bram_wrapper_tb();
 
     // write some data
     addr_in = 0;
-    data_in = 256'hBEAD0000BE0011228888888888888888BEAD0000BE0011228888888888888888;
+    weight_in = 256'hBEAD0000BE0011228888888888888888BEAD0000BE0011228888888888888888;
     write_enable = 1;
 
     #10
@@ -100,7 +100,7 @@ module bram_wrapper_tb();
 
     #1000
     addr_in = 12;
-    data_in = 256'h1212121200001212777777777777777712121212000012127777777777777777;
+    weight_in = 256'h1212121200001212777777777777777712121212000012127777777777777777;
     write_enable = 1;
 
     #10

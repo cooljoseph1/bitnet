@@ -1,4 +1,10 @@
-/* DATA IS STORED IN MANY PIECES IN THE BRAMS. THE PIECES ARE ORDERED MSB, i.e., the most significant bit is the first bit of the first piece */
+/*
+We would like to store data and values that are larger than the maximum width allowed by the BRAM.
+To do this, we split it up into a bunch of smaller pieces. The pieces are stored so that the
+least significant N bits are saved in the first address in RAM, the next N bits are saved in the
+next address, and so on.
+*/
+
 module bram_wrapper #(
     parameter ADDRS = 1024,
     parameter BRAM_WIDTH = 64,
@@ -8,20 +14,20 @@ module bram_wrapper #(
     input wire clk_in,
     input wire rst_in,
 
-    /* communication with the BRAM */
-    input wire [BRAM_WIDTH-1:0] bram_dout, // the dout from the BRAM
-    output logic [BRAM_ADDR_SIZE-1:0] bram_addr, // the addr from the BRAM
-    output logic bram_we, // the we from the BRAM
-    output logic bram_regce, // the regce from the BRAM
-    output logic [BRAM_WIDTH-1:0] bram_din, // the din from the BRAM
-
     /* communication with the module that wants the wrapper */
     input wire [ADDR_SIZE-1:0] addr_in, // tell the data medium what data to extract
     output logic [WIDTH-1:0] data_out, // x value of data at the above pointer address
     input wire [WIDTH-1:0] data_in, // x value of data at the above pointer address
     input wire write_enable,  // we should write the input to the bram at the current addr_in.
-    input wire read_enable, // we are reading from the bram. DO NOT put write_enable and read_enable both high.
-    output logic finished_out
+    output logic finished_out,
+
+
+    /* communication with the BRAM */
+    input wire [BRAM_WIDTH-1:0] bram_dout, // the dout from the BRAM
+    output logic [BRAM_ADDR_SIZE-1:0] bram_addr, // the addr from the BRAM
+    output logic bram_we, // the we from the BRAM
+    output logic bram_regce, // the regce from the BRAM
+    output logic [BRAM_WIDTH-1:0] bram_din // the din from the BRAM
   );
 
   localparam ADDR_SIZE = $clog2(ADDRS);
@@ -41,7 +47,7 @@ module bram_wrapper #(
   logic [PIECE_ADDR_SIZE-1:0] piece_addr = 0; // Offset address of piece of cpu_x or cpu_y that is being read out by the BRAM
                                                   // The true address is addr_in * PIECES + cpu_piece_addr.
   logic finished_all_pieces = 0; // Are we reading pieces or writing pices still? If not, we are finished
-
+  assign finished_out = finished_all_pieces;
   logic busy_reading = 0; // Reading from the BRAM takes two clock cycles. This is high on the clock cycle in between.
 
   always_ff @(posedge clk_in) begin
@@ -52,7 +58,6 @@ module bram_wrapper #(
       bram_addr <= 0;
       finished_all_pieces <= 1;
       busy_reading <= 0;
-      finished_out <= 0;
     end else begin
       if (write_enable && finished_all_pieces) begin
         x <= data_in;
@@ -61,15 +66,13 @@ module bram_wrapper #(
         bram_addr <= PIECES * addr_in - 1;
         finished_all_pieces <= 0;
         current_addr <= addr_in;
-        finished_out <= 0;
-      end else if (read_enable && finished_all_pieces) begin // default to always reading from addr_in
-        // We just got assigned a new place to read/write from!! If we are reading, overwrite our address. Otherwise, ignore.
+      end else if ((current_addr != addr_in) && finished_all_pieces) begin // default to always reading from addr_in
+        // We just got assigned a new place to read from!!
         finished_all_pieces <= 0;
         piece_addr <= 0;
         bram_addr <= PIECES * addr_in;
         busy_reading <= 1;
         current_addr <= addr_in;
-        finished_out <= 0;
       end else if (!finished_all_pieces) begin
         if (writing) begin
           // we are writing
@@ -82,7 +85,6 @@ module bram_wrapper #(
           end else begin
             // We have finished writing!
             finished_all_pieces <= 1;
-            finished_out <= 1;
             writing <= 0;
           end
         end else begin
@@ -100,13 +102,10 @@ module bram_wrapper #(
               x <= {bram_dout, x[WIDTH-1:BRAM_WIDTH]};
               // We have finished reading!
               finished_all_pieces <= 1;
-              finished_out <= 1;
             end
           end
         end
       end else begin
-        finished_out <= 0; // finished_out is high exactly when it finishes, and never before or after
-        
         // do nothing else--we are done writing and done reading and didn't receive a new pointer to read from
       end
     end

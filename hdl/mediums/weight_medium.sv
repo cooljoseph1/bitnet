@@ -1,16 +1,17 @@
-module data_medium #(
-    parameter ADDRS = 1024,
+module weight_medium #(
+    parameter ADDRS = 256,
     parameter BRAM_WIDTH = 64,
-    parameter PIECES = 16
+    parameter PIECES = 48
   ) (
     /* clock and reset */
     input wire clk_in,
     input wire rst_in,
 
     /* communication with cpu */
-    input logic [ADDR_SIZE-1:0] addr_in, // tell the data medium what data to extract
-    output wire [X_WIDTH-1:0] x_out, // value of data at the above addr address
-    output wire [X_WIDTH-1:0] y_out, // value of data at the above addr address
+    input logic [ADDR_SIZE-1:0] addr_in,
+    output wire [WIDTH-1:0] weight_out,
+    input logic [WIDTH-1:0] weight_in,
+    input logic write_enable,
     output wire finished_out,
 
     /* communication with the BRAM */
@@ -22,21 +23,21 @@ module data_medium #(
   );
 
   localparam ADDR_SIZE = $clog2(ADDRS);
-  localparam BRAM_ADDR_SIZE = $clog2(ADDRS * PIECES * 2);
-  localparam X_WIDTH = PIECES * BRAM_WIDTH;
+  localparam BRAM_ADDR_SIZE = $clog2(ADDRS * PIECES);
+  localparam WIDTH = PIECES * BRAM_WIDTH;
 
   bram_wrapper #(
     .ADDRS(ADDRS),
     .BRAM_WIDTH(BRAM_WIDTH),
-    .PIECES(2 * PIECES) // *2 because we have both x and y data
+    .PIECES(PIECES)
   ) internal_wrapper (
     .clk_in(clk_in),
     .rst_in(rst_in),
 
     .addr_in(addr_in),
-    .data_out({x_out, y_out}),
-    .data_in({X_WIDTH{2'b00}}),
-    .write_enable(1'b0),
+    .data_out(weight_out),
+    .data_in(weight_in),
+    .write_enable(write_enable),
     .finished_out(finished_out),
 
     .bram_dout(bram_dout),
@@ -46,4 +47,4 @@ module data_medium #(
     .bram_din(bram_din)
   );
 
-endmodule // data_medium
+endmodule // weight_medium
