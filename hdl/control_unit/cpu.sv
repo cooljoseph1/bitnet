@@ -54,9 +54,9 @@ module cpu #(
     
   );
 
-  localparam IP_SIZE = $clog2(PROGRAM_LENGTH-1);
-  localparam D_SIZE = $clog2(DATA_LENGTH-1);
-  localparam A_SIZE = $clog2(WEIGHT_LENGTH-1);
+  localparam IP_SIZE = $clog2(PROGRAM_LENGTH);
+  localparam D_SIZE = $clog2(DATA_LENGTH);
+  localparam A_SIZE = $clog2(WEIGHT_LENGTH);
 
   /* Pointers */
   logic [IP_SIZE-1:0] instruction_pointer = 0;
