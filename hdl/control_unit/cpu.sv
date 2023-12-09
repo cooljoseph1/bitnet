@@ -15,25 +15,30 @@ module cpu #(
     input wire clk_in,
     input wire rst_in,
 
-    /* communication with instruction median. */
+    /* communication with instruction medium. */
     output logic instruction_pointer_out; // pointer to the instruction we want in memory
-    input wire [INSTRUCTION_SIZE-1:0] instruction_in, // the instruction from the instruction median
+    input wire [INSTRUCTION_SIZE-1:0] instruction_in, // the instruction from the instruction medium
     // There is only one half of the ready/valid communication because we assume that instruction_pointer_out is always valid
-    // and the instruction median is always ready.
+    // and the instruction medium is always ready.
     input wire instruction_valid, // instruction_in is now a valid instruction!
     output logic instruction_ready, // tell the program counter that we are ready for a new instruction
 
-    /* communication with data median. */
-    output logic [DATA_LENGTH-1:0] data_pointer_out; // tell the data median what data to extract
+    /* communication with data medium. */
+    output logic [DATA_LENGTH-1:0] data_pointer_out; // tell the data medium what data to extract
     input wire [X_SIZE-1:0] data_x_in; // x value of data at the above pointer address
     input wire [X_SIZE-1:0] data_y_in; // y value of data at the above pointer address
     // There are no other ready/valid signals because everything else is always valid and ready
     input wire data_in_valid;
 
-    /* communication with weight median. */
-    output logic [WEIGHT_LENGTH-1:0] weight_pointer_out, // tell the weight median what weight to extract
-    input wire [W_SIZE-1:0] weight_in, // input from the weight median
-    output logic [W_SIZE-1:0] weight_out, // output to the weight median
+    /* communication with inference medium. */
+    output logic [DATA_SIZE-1:0] inference_out, // output to the weight medium
+    output logic inference_valid, // output a new inference to the medium when this is high for one clock cycle
+    // No other valid/ready signals because it is assumed to be always ready
+
+    /* communication with weight medium. */
+    output logic [WEIGHT_LENGTH-1:0] weight_pointer_out, // tell the weight medium what weight to extract
+    input wire [W_SIZE-1:0] weight_in, // input from the weight medium
+    output logic [W_SIZE-1:0] weight_out, // output to the weight medium
     // No ready signal for weight_in because the cpu is always ready to receive when it asks for an input
     input wire weight_in_valid,
     input wire weight_out_ready,
@@ -127,24 +132,25 @@ module cpu #(
   localparam SET_X_TO_VALUE_AT_D0 = 21; // "X = *D0"
   localparam SET_Y_TO_VALUE_AT_D1 = 22; // "Y = *D1"
   localparam SET_XY_TO_VALUE_AT_D = 23; // "X, Y = *D"
-  localparam SET_W_TO_VALUE_AT_A = 24; // "W = *A"
-  localparam SET_VALUE_AT_A_TO_W = 25; // "*A = W"
-  localparam SWAP_XY = 26; // "X, Y = Y, X"
-  localparam SET_X_TO_Y = 27; // "X = Y"
-  localparam SET_Y_TO_X = 28; // "Y = X"
-  localparam PUSH_X = 29; // "PUSH X"
-  localparam PUSH_Y = 30; // "PUSH Y"
-  localparam POP_X = 31; // "POP X"
-  localparam POP_Y = 32; // "POP Y"
-  localparam SET_X_TO_X_XOR_Y = 33; // "X = X ^ Y"
-  localparam SET_Y_TO_X_XOR_Y = 34; // "Y = X ^ Y"
-  localparam SET_X_TO_X_AND_Y = 35; // "X = X & Y"
-  localparam SET_Y_TO_X_AND_Y = 36; // "Y = X & Y"
-  localparam SET_X_TO_X_OR_Y = 37; // "X = X | Y"
-  localparam SET_Y_TO_X_OR_Y = 38; // "Y = X | Y"
-  localparam INTERWEAVE = 39; // "INTERWEAVE"
-  localparam BACKPROP = 40; // "BACKPROP"
-  localparam STOCH_GRAD = 41; // "STOCH GRAD"
+  localparam SET_INFERENCE_TO_Y = 24; // "INFERENCE = Y"
+  localparam SET_W_TO_VALUE_AT_A = 25; // "W = *A"
+  localparam SET_VALUE_AT_A_TO_W = 26; // "*A = W"
+  localparam SWAP_XY = 27; // "X, Y = Y, X"
+  localparam SET_X_TO_Y = 28; // "X = Y"
+  localparam SET_Y_TO_X = 29; // "Y = X"
+  localparam PUSH_X = 30; // "PUSH X"
+  localparam PUSH_Y = 31; // "PUSH Y"
+  localparam POP_X = 32; // "POP X"
+  localparam POP_Y = 33; // "POP Y"
+  localparam SET_X_TO_X_XOR_Y = 34; // "X = X ^ Y"
+  localparam SET_Y_TO_X_XOR_Y = 35; // "Y = X ^ Y"
+  localparam SET_X_TO_X_AND_Y = 36; // "X = X & Y"
+  localparam SET_Y_TO_X_AND_Y = 37; // "Y = X & Y"
+  localparam SET_X_TO_X_OR_Y = 38; // "X = X | Y"
+  localparam SET_Y_TO_X_OR_Y = 39; // "Y = X | Y"
+  localparam INTERWEAVE = 40; // "INTERWEAVE"
+  localparam BACKPROP = 41; // "BACKPROP"
+  localparam STOCH_GRAD = 42; // "STOCH GRAD"
 
   /* current instruction we are working on */
   logic [INSTRUCTION_SIZE-1:0] instruction = SET_I_TO_0;
@@ -346,6 +352,16 @@ module cpu #(
         end
         default: begin
           // do nothing
+        end
+      endcase
+
+      case(instruction_in)
+        SET_INFERENCE_TO_Y: begin
+          inference_out <= y_register;
+          inference_valid <= 1;
+        end
+        default: begin
+          inference_valid <= 0;
         end
       endcase
 

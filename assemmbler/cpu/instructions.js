@@ -23,6 +23,7 @@ var instructionSet = [
     "X = *D[0]",
     "Y = *D[1]",
     "X, Y = *D",
+    "INFERENCE = Y",
     "W = *A",
     "*A = W",
     "X, Y = Y, X",
