@@ -1,13 +1,13 @@
 module comms #(
   parameter DATA_DEPTH = 16384,
   parameter DATA_BRAM_WIDTH = 64,
-  parameter DATA_SETS = 16,
+  parameter DATA_PIECES = 16,
   parameter WEIGHT_DEPTH = 49152,
   parameter WEIGHT_BRAM_WIDTH = 64,
-  parameter WEIGHT_SETS = 16,
+  parameter WEIGHT_PIECES = 16,
   parameter OP_DEPTH = 1024,
   parameter OP_BRAM_WIDTH = 8,
-  parameter OP_SETS = 1
+  parameter OP_PIECES = 1
 ) (
   input wire clk_in,
   input wire rst_in,
@@ -46,33 +46,41 @@ module comms #(
   output logic op_read_enable_out
  );
 
-  localparam FRAME_SIZE = 8;
+  localparam FRAME_SIZE = 8; // UART sends one byte in each frame
+  localparam CLK_BAUD_RATIO = 25; // Clock cycles per bit
+
+  localparam WRITE = 1'b0;
+  localparam READ = 1'b1;
+
+  localparam DATA = 2'b00;
+  localparam WEIGHT = 2'b01;
+  localparam OP = 2'b10;
+  localparam INFERENCE = 2'b11;
   
-  // GET OP CODE
-  localparam CLK_BAUD_RATIO = 25;
+  // GET HEADER
   localparam TYPE_SIZE = 3;
   localparam ADDR_SIZE = 16;
-  localparam OP_SIZE = (TYPE_SIZE + ADDR_SIZE + FRAME_SIZE - 1) / FRAME_SIZE * FRAME_SIZE;
+  localparam HEADER_SIZE = (TYPE_SIZE + ADDR_SIZE + FRAME_SIZE - 1) / FRAME_SIZE * FRAME_SIZE; // round to multiple of frame_size
 
-  logic [OP_SIZE-1:0] op_code;
-  logic new_op;
+  logic [HEADER_SIZE-1:0] header;
+  logic new_header;
   recv #(
     .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
     .FRAME_SIZE(FRAME_SIZE),
-    .FRAMES(OP_SIZE / FRAME_SIZE)
-  ) read_op (
+    .FRAMES(HEADER_SIZE / FRAME_SIZE)
+  ) read_header (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .receive_in(!busy_out && !new_op),
+    .receive_in(!busy_out && !new_header),
     .rx_in(rx_in),
-    .data_out(op_code),
-    .new_data_out(new_op)
+    .data_out(header),
+    .new_data_out(new_header)
   );
 
   // RECEIVING (LAPTOP -> FPGA)
   logic receive;
 
-  logic set_data;
+  logic piece_data;
   recv #(
     .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
     .FRAME_SIZE(FRAME_SIZE),
@@ -80,14 +88,14 @@ module comms #(
   ) recv_data (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .receive_in(receive && op_code[1:0]==2'b00),
+    .receive_in(receive && header[1:0]==2'b00),
     .rx_in(rx_in),
     .data_out(data_register_out),
-    .new_data_out(set_data)
+    .new_data_out(piece_data)
   );
 
     
-  logic set_weight;
+  logic piece_weight;
   recv #(
     .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
     .FRAME_SIZE(FRAME_SIZE),
@@ -95,13 +103,13 @@ module comms #(
   ) recv_weight (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .receive_in(receive && op_code[1:0]==2'b01),
+    .receive_in(receive && header[1:0]==2'b01),
     .rx_in(rx_in),
     .data_out(weight_register_out),
-    .new_data_out(set_weight)
+    .new_data_out(piece_weight)
   );
 
-  logic set_op;
+  logic piece_op;
   recv #(
     .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
     .FRAME_SIZE(FRAME_SIZE),
@@ -109,10 +117,10 @@ module comms #(
   ) recv_op (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .receive_in(receive && op_code[1:0]==2'b10),
+    .receive_in(receive && header[1:0]==2'b10),
     .rx_in(rx_in),
     .data_out(op_register_out),
-    .new_data_out(set_op)
+    .new_data_out(piece_op)
   );
 
   // TRANSMITTING (FPGA -> LAPTOP)
@@ -128,7 +136,7 @@ module comms #(
   ) trans_data (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .new_data_in(transmit && op_code[1:0]==2'b00),
+    .new_data_in(transmit && header[1:0]==2'b00),
     .data_in(data_register_in),
     .tx_out(tx_data),
     .busy_out(busy_transmitting_data)
@@ -143,7 +151,7 @@ module comms #(
   ) trans_weight (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .new_data_in(transmit && op_code[1:0]==2'b01),
+    .new_data_in(transmit && header[1:0]==2'b01),
     .data_in(weight_register_in),
     .tx_out(tx_weight),
     .busy_out(busy_transmitting_weight)
@@ -158,14 +166,14 @@ module comms #(
   ) trans_op (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .new_data_in(transmit && op_code[1:0]==2'b10),
+    .new_data_in(transmit && header[1:0]==2'b10),
     .data_in(op_register_in),
     .tx_out(tx_op),
     .busy_out(busy_transmitting_op)
   );
 
 
-  logic [$clog2(WEIGHT_SETS+1)-1:0] set_counter; // Note: WEIGHT is widest type
+  logic [$clog2(WEIGHT_PIECES+1)-1:0] piece_counter; // Note: WEIGHT is widest type
   logic grabbed_register;
   always_ff @(posedge clk_in)begin
     receive <= 0;
@@ -173,111 +181,111 @@ module comms #(
 
     if (rst_in)begin
       busy_out <= 0;
-    end else if (new_op)begin
+    end else if (new_header)begin
       busy_out <= 1;
-      receive <= !(op_code[2]);
-      case (op_code[1:0])
-        2'b00: data_addr_out <= DATA_SETS * op_code[OP_SIZE-1:OP_SIZE-ADDR_SIZE];
-        2'b01: weight_addr_out <= WEIGHT_SETS * op_code[OP_SIZE-1:OP_SIZE-ADDR_SIZE];
-        2'b10: op_addr_out <= OP_SETS * op_code[OP_SIZE-1:OP_SIZE-ADDR_SIZE];
+      receive <= !(header[2]);
+      case (header[1:0])
+        DATA: data_addr_out <= DATA_PIECES * header[HEADER_SIZE-1:HEADER_SIZE-ADDR_SIZE];
+        WEIGHT: weight_addr_out <= WEIGHT_PIECES * header[HEADER_SIZE-1:HEADER_SIZE-ADDR_SIZE];
+        OP: op_addr_out <= OP_PIECES * header[HEADER_SIZE-1:HEADER_SIZE-ADDR_SIZE];
         default: ;
       endcase
-      set_counter <= 0;
+      piece_counter <= 0;
     end else if (busy_out)begin
-      case (op_code[2:0])
-        3'b000: begin // Write to DATA
+      case (header[2:0])
+        {WRITE, DATA}: begin // Write to DATA
           if (data_write_enable_out)begin
             data_write_enable_out <= 0;
             data_addr_out <= data_addr_out + 1;
-            if (set_counter == DATA_SETS)begin
+            if (piece_counter == DATA_PIECES)begin
               busy_out <= 0;
             end else begin
               receive <= 1;
             end
           end
-          if (set_data)begin
+          if (piece_data)begin
             data_write_enable_out <= 1;
-            set_counter <= set_counter + 1;
+            piece_counter <= piece_counter + 1;
           end
         end
-        3'b001: begin // Write to WEIGHT
+        {WRITE, WEIGHT}: begin // Write to WEIGHT
           if (weight_write_enable_out)begin
             weight_write_enable_out <= 0;
             weight_addr_out <= weight_addr_out + 1;
-            if (set_counter == WEIGHT_SETS)begin
+            if (piece_counter == WEIGHT_PIECES)begin
               busy_out <= 0;
             end else begin
               receive <= 1;
             end
           end
-          if (set_weight)begin
+          if (piece_weight)begin
             weight_write_enable_out <= 1;
-            set_counter <= set_counter + 1;
+            piece_counter <= piece_counter + 1;
           end
         end
-        3'b010: begin // Write to OP
+        {WRITE, OP}: begin // Write to OP
           if (op_write_enable_out)begin
             op_write_enable_out <= 0;
             op_addr_out <= op_addr_out + 1;
-            if (set_counter == OP_SETS)begin
+            if (piece_counter == OP_PIECES)begin
               busy_out <= 0;
             end else begin
               receive <= 1;
             end
           end
-          if (set_op)begin
+          if (piece_op)begin
             op_write_enable_out <= 1;
-            set_counter <= set_counter + 1;
+            piece_counter <= piece_counter + 1;
           end
         end
-        3'b100: begin // Read from DATA
+        {READ, DATA}: begin // Read from DATA
           if (!busy_transmitting_data && !transmit)begin
             if (grabbed_register)begin
               data_read_enable_out <= 0;
               transmit <= 1;
               grabbed_register <= 0;
               data_addr_out <= data_addr_out + 1;
-            end else if(set_counter == DATA_SETS) begin
+            end else if(piece_counter == DATA_PIECES) begin
               busy_out <= 0;
               transmit <= 0;
             end else begin
               data_read_enable_out <= 1;
               grabbed_register <= 1;
-              set_counter <= set_counter + 1;
+              piece_counter <= piece_counter + 1;
             end
           end
         end
-        3'b101: begin // Read from WEIGHT
+        {READ, WEIGHT}: begin // Read from WEIGHT
           if (!busy_transmitting_weight && !transmit)begin
             if (grabbed_register)begin
               weight_read_enable_out <= 0;
               transmit <= 1;
               grabbed_register <= 0;
               weight_addr_out <= weight_addr_out + 1;
-            end else if(set_counter == WEIGHT_SETS) begin
+            end else if(piece_counter == WEIGHT_PIECES) begin
               busy_out <= 0;
               transmit <= 0;
             end else begin
               weight_read_enable_out <= 1;
               grabbed_register <= 1;
-              set_counter <= set_counter + 1;
+              piece_counter <= piece_counter + 1;
             end
           end
         end
-        3'b110: begin // Read from OP
+        {READ, OP}: begin // Read from OP
           if (!busy_transmitting_op && !transmit)begin
             if (grabbed_register)begin
               op_read_enable_out <= 0;
               transmit <= 1;
               grabbed_register <= 0;
               op_addr_out <= op_addr_out + 1;
-            end else if(set_counter == OP_SETS) begin
+            end else if(piece_counter == OP_PIECES) begin
               busy_out <= 0;
               transmit <= 0;
             end else begin
               op_read_enable_out <= 1;
               grabbed_register <= 1;
-              set_counter <= set_counter + 1;
+              piece_counter <= piece_counter + 1;
             end
           end
         end
