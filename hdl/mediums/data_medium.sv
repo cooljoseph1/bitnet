@@ -4,8 +4,8 @@
 
 /* DATA IS STORED IN MANY PIECES IN THE BRAMS. THE PIECES ARE ORDERED MSB, i.e., the most significant bit is the first bit of the first piece */
 module data_medium #(
-    parameter DATA_ADDRS = 1024,
-    parameter X_SIZE = 1024,
+    parameter ADDRS = 1024,
+    parameter PIECES = 32,
     parameter BRAM_WIDTH = 64,
   ) (
     /* clock and reset */
@@ -13,31 +13,30 @@ module data_medium #(
     input wire rst_in,
 
     /* communication with cpu */
-    input logic [$clog2(DATA_ADDRS)-1:0] cpu_pointer_in; // tell the data medium what data to extract
-    output wire [X_SIZE-1:0] cpu_x_out; // x value of data at the above pointer address
-    output wire [X_SIZE-1:0] cpu_y_out; // y value of data at the above pointer address
+    input logic [$clog2(DATA_ADDRS)-1:0] cpu_addr_in; // tell the data medium what data to extract
+    output wire [DATA_WIDTH-1:0] cpu_out; // value of data at the above addr address
     // There are no other ready/valid signals because everything else is always valid and ready
     output wire cpu_out_valid;
   );
 
+  localparam DATA_WIDTH = PIECES * BRAM_WIDTH
+
   localparam D_SIZE = $clog2(DATA_ADDRS);
-  localparam PIECES = 2 * X_SIZE / BRAM_WIDTH; // number of pieces each data is broken into to be saved in RAM.
-                                               // The x2 is because there is both an x and a y part to the data
   localparam PIECE_ADDR_SIZE = $clog2(X_PIECES);
 
   localparam BRAM_DEPTH = DATA_ADDRS * PIECES;
   localparam LOG_BRAM_DEPTH = $clog2(BRAM_DEPTH);
 
-  logic [D_SIZE-1:0] cpu_previous_pointer = 0;
-  logic [X_SIZE-1:0] cpu_x = 0;
+  logic [D_SIZE-1:0] cpu_previous_addr = 0;
+  logic [DATA_WIDTH-1:0] cpu = 0;
   assign cpu_x_out = cpu_x;
   logic [X_SIZE-1:0] cpu_y = 0;
   assign cpu_y_out = cpu_y;
 
   logic [PIECE_ADDR_SIZE-1:0] cpu_piece_addr = 0; // Offset address of piece of cpu_x or cpu_y that is being read out by the BRAM
-                                                  // The true address is cpu_pointer_in * PIECES + cpu_piece_addr.
+                                                  // The true address is cpu_addr_in * PIECES + cpu_piece_addr.
   logic [LOG_BRAM_DEPTH-1:0] cpu_true_addr;
-  assign cpu_true_addr = cpu_pointer_in * PIECES + cpu_piece_addr;
+  assign cpu_true_addr = cpu_addr_in * PIECES + cpu_piece_addr;
   logic cpu_finished_all_pieces = 0; // Are we reading x pieces or y pieces? Or are we done? working = 0, done = 1
   assign cpu_out_valid = cpu_finished_all_pieces;
 
@@ -46,14 +45,14 @@ module data_medium #(
 
   always_ff @(posedge clk_in) begin
     if (rst_in) begin
-      cpu_previous_pointer <= -1;
+      cpu_previous_addr <= -1;
       cpu_x <= 0;
       cpu_y <= 0;
       cpu_piece_addr <= 0;
       cpu_finished_all_pieces <= 0;
       cpu_busy_reading <= 0;
     end else begin
-      if (cpu_previous_pointer != cpu_pointer_in) begin
+      if (cpu_previous_addr != cpu_addr_in) begin
         // We just got assigned a new place to read from!! Start reading from it
         cpu_finished_all_pieces <= 0;
         cpu_piece_addr <= 0;
@@ -75,7 +74,7 @@ module data_medium #(
           end
         end
       end else begin
-        // do nothing--we are done reading and didn't receive a new pointer
+        // do nothing--we are done reading and didn't receive a new addr
       end
     end
   end

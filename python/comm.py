@@ -23,16 +23,18 @@ def prepare_message(dir, bram, addr, data=None):
 
     return int(bits, 2).to_bytes(len(bits)//8, byteorder='little')
 
-addr = '0000000000100100'
+addr = '0000000000100101'
 msg = prepare_message('send', 'data', addr, '01'*512)
 ser.write(msg)
 msg = prepare_message('send', 'weight', addr, '101110'*512)
 ser.write(msg)
-msg = prepare_message('send', 'op', addr, '0010'*2)
+msg = prepare_message('send', 'op', addr, bin(ord("V"))[2:].zfill(8))
+ser.write(msg)
+msg = prepare_message('send', 'op', addr, bin(ord("Z"))[2:].zfill(8))
 ser.write(msg)
 
-msg = prepare_message('recv', 'weight', addr)
+msg = prepare_message('recv', 'op', addr)
 ser.write(msg)
-print(ser.read(128*3))
+print(ser.read(1))
 
 ser.close()
