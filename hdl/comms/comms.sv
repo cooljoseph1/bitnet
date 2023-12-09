@@ -20,6 +20,9 @@ module comms #(
   input logic [WEIGHT_BRAM_WIDTH-1:0] weight_register_in,
   input logic [OP_BRAM_WIDTH-1:0] op_register_in,
 
+  // Input from inference register:
+  input logic [INF_WIDTH-1:0] inf_register_in,
+
   // UART transmitter
   output logic tx_out,
 
@@ -55,7 +58,7 @@ module comms #(
   localparam DATA = 2'b00;
   localparam WEIGHT = 2'b01;
   localparam OP = 2'b10;
-  localparam INFERENCE = 2'b11;
+  localparam INF = 2'b11;
   
   // GET HEADER
   localparam TYPE_SIZE = 3;
@@ -88,7 +91,7 @@ module comms #(
   ) recv_data (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .receive_in(receive && header[1:0]==2'b00),
+    .receive_in(receive && header[1:0]==DATA),
     .rx_in(rx_in),
     .data_out(data_register_out),
     .new_data_out(piece_data)
@@ -103,7 +106,7 @@ module comms #(
   ) recv_weight (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .receive_in(receive && header[1:0]==2'b01),
+    .receive_in(receive && header[1:0]==WEIGHT),
     .rx_in(rx_in),
     .data_out(weight_register_out),
     .new_data_out(piece_weight)
@@ -117,7 +120,7 @@ module comms #(
   ) recv_op (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .receive_in(receive && header[1:0]==2'b10),
+    .receive_in(receive && header[1:0]==OP),
     .rx_in(rx_in),
     .data_out(op_register_out),
     .new_data_out(piece_op)
@@ -125,7 +128,7 @@ module comms #(
 
   // TRANSMITTING (FPGA -> LAPTOP)
   logic transmit;
-  assign tx_out = tx_data & tx_weight & tx_op;
+  assign tx_out = tx_data & tx_weight & tx_op & tx_inf;
 
   logic busy_transmitting_data;
   logic tx_data;
@@ -136,7 +139,7 @@ module comms #(
   ) trans_data (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .new_data_in(transmit && header[1:0]==2'b00),
+    .new_data_in(transmit && header[1:0]==DATA),
     .data_in(data_register_in),
     .tx_out(tx_data),
     .busy_out(busy_transmitting_data)
@@ -151,7 +154,7 @@ module comms #(
   ) trans_weight (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .new_data_in(transmit && header[1:0]==2'b01),
+    .new_data_in(transmit && header[1:0]==WEIGHT),
     .data_in(weight_register_in),
     .tx_out(tx_weight),
     .busy_out(busy_transmitting_weight)
@@ -166,10 +169,28 @@ module comms #(
   ) trans_op (
     .clk_in(clk_in),
     .rst_in(rst_in),
-    .new_data_in(transmit && header[1:0]==2'b10),
+    .new_data_in(transmit && header[1:0]==OP),
     .data_in(op_register_in),
     .tx_out(tx_op),
     .busy_out(busy_transmitting_op)
+  );
+
+  localparam INF_WIDTH = DATA_BRAM_WIDTH * DATA_PIECES;
+  localparam INF_PIECES = 1;
+
+  logic busy_transmitting_inf;
+  logic tx_inf;
+  trans #(
+    .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
+    .FRAME_SIZE(FRAME_SIZE),
+    .FRAMES(INF_WIDTH / FRAME_SIZE)
+  ) trans_inf (
+    .clk_in(clk_in),
+    .rst_in(rst_in),
+    .new_data_in(transmit && header[1:0]==INF),
+    .data_in(inf_register_in),
+    .tx_out(tx_inf),
+    .busy_out(busy_transmitting_inf)
   );
 
 
@@ -247,7 +268,6 @@ module comms #(
               data_addr_out <= data_addr_out + 1;
             end else if(piece_counter == DATA_PIECES) begin
               busy_out <= 0;
-              transmit <= 0;
             end else begin
               data_read_enable_out <= 1;
               grabbed_register <= 1;
@@ -264,7 +284,6 @@ module comms #(
               weight_addr_out <= weight_addr_out + 1;
             end else if(piece_counter == WEIGHT_PIECES) begin
               busy_out <= 0;
-              transmit <= 0;
             end else begin
               weight_read_enable_out <= 1;
               grabbed_register <= 1;
@@ -281,10 +300,19 @@ module comms #(
               op_addr_out <= op_addr_out + 1;
             end else if(piece_counter == OP_PIECES) begin
               busy_out <= 0;
-              transmit <= 0;
             end else begin
               op_read_enable_out <= 1;
               grabbed_register <= 1;
+              piece_counter <= piece_counter + 1;
+            end
+          end
+        end
+        {READ, INF}: begin // Read from INF, untested but should work?
+          if (!busy_transmitting_inf && !transmit)begin
+            if (piece_counter == INF_PIECES)begin
+              busy_out <= 0;
+            end else begin
+              transmit <= 1;
               piece_counter <= piece_counter + 1;
             end
           end

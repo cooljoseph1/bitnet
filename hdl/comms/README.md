@@ -13,10 +13,11 @@ Potentially followed by bytes streaming in:
 Header bits:
 - BYTE 1:
     - The first five bits are unused.
-    - The <span style="color:magenta">next two bits</span> tells the computer which BRAM to query:
-        - <span style="color:magenta">00</span> - DATA.
-        - <span style="color:magenta">01</span> - WEIGHT.
-        - <span style="color:magenta">10</span> - OP.
+    - The <span style="color:magenta">next two bits</span> tells the computer where to look to query:
+        - <span style="color:magenta">00</span> - DATA BRAM.
+        - <span style="color:magenta">01</span> - WEIGHT BRAM.
+        - <span style="color:magenta">10</span> - OP BRAM.
+        - <span style="color:magenta">10</span> - INF REGISTER. This can only be read from.
     - The <span style="color:cyan">next bit</span> tells whether to receive (0) or send (1) data, from the persepctive of the FPGA.
 - BYTES 2-3:
     - The <span style="color:green">next 16 bits</span> are the address.

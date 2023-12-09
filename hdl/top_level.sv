@@ -27,12 +27,12 @@ module top_level #(
   assign rgb0 = 0;
   assign rgb1 = 0;
 
-	localparam DATA_SETS = DATA_SIZE / DATA_BRAM_WIDTH;
-	localparam DATA_DEPTH = DATA_ADDRS * DATA_SETS;
-	localparam WEIGHT_SETS = WEIGHT_SIZE / WEIGHT_BRAM_WIDTH;
-	localparam WEIGHT_DEPTH = WEIGHT_ADDRS * WEIGHT_SETS;
-  localparam OP_SETS = OP_SIZE / OP_BRAM_WIDTH;
-  localparam OP_DEPTH = OP_ADDRS * OP_SETS;
+	localparam DATA_PIECES = DATA_SIZE / DATA_BRAM_WIDTH;
+	localparam DATA_DEPTH = DATA_ADDRS * DATA_PIECES;
+	localparam WEIGHT_PIECES = WEIGHT_SIZE / WEIGHT_BRAM_WIDTH;
+	localparam WEIGHT_DEPTH = WEIGHT_ADDRS * WEIGHT_PIECES;
+  localparam OP_PIECES = OP_SIZE / OP_BRAM_WIDTH;
+  localparam OP_DEPTH = OP_ADDRS * OP_PIECES;
 
   logic [$clog2(DATA_DEPTH)-1:0] comm_data_addr;
   logic [DATA_BRAM_WIDTH-1:0] comm_data_register_in;
@@ -55,13 +55,13 @@ module top_level #(
   comms #(
     .DATA_DEPTH(DATA_DEPTH),
     .DATA_BRAM_WIDTH(DATA_BRAM_WIDTH),
-    .DATA_SETS(DATA_SETS),
+    .DATA_PIECES(DATA_PIECES),
     .WEIGHT_DEPTH(WEIGHT_DEPTH),
     .WEIGHT_BRAM_WIDTH(WEIGHT_BRAM_WIDTH),
-    .WEIGHT_SETS(WEIGHT_SETS),
+    .WEIGHT_PIECES(WEIGHT_PIECES),
     .OP_DEPTH(OP_DEPTH),
     .OP_BRAM_WIDTH(OP_BRAM_WIDTH),
-    .OP_SETS(OP_SETS)
+    .OP_PIECES(OP_PIECES)
   ) comm_module (
     .clk_in(clk_100mhz),
     .rst_in(sys_rst),

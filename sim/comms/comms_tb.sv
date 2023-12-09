@@ -19,7 +19,7 @@ module comms_tb();
   comms #(
     .DATA_DEPTH(1<<16),
     .DATA_BRAM_WIDTH(64),
-    .DATA_SETS(2)
+    .DATA_PIECES(2)
   ) test_comms (
     .clk_in(clk_in),
     .rst_in(rst_in),
