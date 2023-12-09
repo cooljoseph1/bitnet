@@ -24,7 +24,7 @@ module cpu #(
     output logic instruction_ready, // tell the program counter that we are ready for a new instruction
 
     /* communication with data medium. */
-    output logic [DATA_LENGTH-1:0] data_pointer_out; // tell the data medium what data to extract
+    output logic [$clog2(DATA_LENGTH)-1:0] data_pointer_out; // tell the data medium what data to extract
     input wire [X_SIZE-1:0] data_x_in; // x value of data at the above pointer address
     input wire [X_SIZE-1:0] data_y_in; // y value of data at the above pointer address
     // There are no other ready/valid signals because everything else is always valid and ready
@@ -36,7 +36,7 @@ module cpu #(
     // No other valid/ready signals because it is assumed to be always ready
 
     /* communication with weight medium. */
-    output logic [WEIGHT_LENGTH-1:0] weight_pointer_out, // tell the weight medium what weight to extract
+    output logic [$clog2(WEIGHT_LENGTH)-1:0] weight_pointer_out, // tell the weight medium what weight to extract
     input wire [W_SIZE-1:0] weight_in, // input from the weight medium
     output logic [W_SIZE-1:0] weight_out, // output to the weight medium
     // No ready signal for weight_in because the cpu is always ready to receive when it asks for an input
