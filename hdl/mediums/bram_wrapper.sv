@@ -20,6 +20,7 @@ module bram_wrapper #(
     output logic [WIDTH-1:0] data_out, // x value of data at the above pointer address
     input wire [WIDTH-1:0] data_in, // x value of data at the above pointer address
     input wire write_enable,  // we should write the input to the bram at the current addr_in.
+    input wire read_enable, // we are reading from the bram. DO NOT put write_enable and read_enable both high.
     output logic finished_out
   );
 
@@ -40,7 +41,6 @@ module bram_wrapper #(
   logic [PIECE_ADDR_SIZE-1:0] piece_addr = 0; // Offset address of piece of cpu_x or cpu_y that is being read out by the BRAM
                                                   // The true address is addr_in * PIECES + cpu_piece_addr.
   logic finished_all_pieces = 0; // Are we reading pieces or writing pices still? If not, we are finished
-  assign finished_out = finished_all_pieces;
 
   logic busy_reading = 0; // Reading from the BRAM takes two clock cycles. This is high on the clock cycle in between.
 
@@ -52,6 +52,7 @@ module bram_wrapper #(
       bram_addr <= 0;
       finished_all_pieces <= 1;
       busy_reading <= 0;
+      finished_out <= 0;
     end else begin
       if (write_enable && finished_all_pieces) begin
         x <= data_in;
@@ -60,13 +61,15 @@ module bram_wrapper #(
         bram_addr <= PIECES * addr_in - 1;
         finished_all_pieces <= 0;
         current_addr <= addr_in;
-      end else if ((current_addr != addr_in) && finished_all_pieces) begin // default to always reading from addr_in
+        finished_out <= 0;
+      end else if (read_enable && finished_all_pieces) begin // default to always reading from addr_in
         // We just got assigned a new place to read/write from!! If we are reading, overwrite our address. Otherwise, ignore.
         finished_all_pieces <= 0;
         piece_addr <= 0;
         bram_addr <= PIECES * addr_in;
         busy_reading <= 1;
         current_addr <= addr_in;
+        finished_out <= 0;
       end else if (!finished_all_pieces) begin
         if (writing) begin
           // we are writing
@@ -79,6 +82,7 @@ module bram_wrapper #(
           end else begin
             // We have finished writing!
             finished_all_pieces <= 1;
+            finished_out <= 1;
             writing <= 0;
           end
         end else begin
@@ -96,11 +100,14 @@ module bram_wrapper #(
               x <= {bram_dout, x[WIDTH-1:BRAM_WIDTH]};
               // We have finished reading!
               finished_all_pieces <= 1;
+              finished_out <= 1;
             end
           end
         end
       end else begin
-        // do nothing--we are done writing and done reading and didn't receive a new pointer to read from 
+        finished_out <= 0; // finished_out is high exactly when it finishes, and never before or after
+        
+        // do nothing else--we are done writing and done reading and didn't receive a new pointer to read from
       end
     end
   end
