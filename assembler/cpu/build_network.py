@@ -6,7 +6,7 @@ with open('instructions.json', 'r') as f:
 def to_machine_code(instr):
     return instruction_set.index(instr)
 
-def fc(T):
+def f_fc(T):
     ops = []
     for t in range(trits):
         ops += [
@@ -14,15 +14,15 @@ def fc(T):
             f"W = *A",
             f"PUSH X",
             f"INTERWEAVE",
-            f"A++",
+            f"A_INCREMENT",
         ]
     return ops
 
-def bc(T):
+def b_fc(T):
     ops = []
     for t in range(T-1, 0, -1):
         ops += [
-            f"A--",
+            f"A_DECREMENT",
             f"W = *A",
             f"TRIT = {t}",
             f"POP X",
@@ -31,7 +31,7 @@ def bc(T):
         ]
     return ops
 
-def fres(N, T):
+def f_res(N, T):
     ops = ["Y = X"]
     for i in range(N):
         ops += ["X = Y"]

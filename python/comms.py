@@ -11,10 +11,10 @@ loc_bits = {
     }
 
 loc_size = {
-    'data': 2048//2,
+    'data': 2048,
     'weight': 3072,
     'op': 8,
-    'inf': 2048//2
+    'inf': 1024
     }
 
 def prepare_message(io, loc, addr, bits=None):
