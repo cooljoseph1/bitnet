@@ -83,7 +83,7 @@ module comms #(
   // RECEIVING (LAPTOP -> FPGA)
   logic receive;
 
-  logic new_data_piece;
+  logic piece_data;
   recv #(
     .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
     .FRAME_SIZE(FRAME_SIZE),
@@ -94,11 +94,11 @@ module comms #(
     .receive_in(receive && header[1:0]==DATA),
     .rx_in(rx_in),
     .data_out(data_register_out),
-    .new_data_out(new_data_piece)
+    .new_data_out(piece_data)
   );
 
     
-  logic new_weight_piece;
+  logic piece_weight;
   recv #(
     .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
     .FRAME_SIZE(FRAME_SIZE),
@@ -109,10 +109,10 @@ module comms #(
     .receive_in(receive && header[1:0]==WEIGHT),
     .rx_in(rx_in),
     .data_out(weight_register_out),
-    .new_data_out(new_weight_piece)
+    .new_data_out(piece_weight)
   );
 
-  logic new_op_piece;
+  logic piece_op;
   recv #(
     .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
     .FRAME_SIZE(FRAME_SIZE),
@@ -123,7 +123,7 @@ module comms #(
     .receive_in(receive && header[1:0]==OP),
     .rx_in(rx_in),
     .data_out(op_register_out),
-    .new_data_out(new_op_piece)
+    .new_data_out(piece_op)
   );
 
   // TRANSMITTING (FPGA -> LAPTOP)
@@ -193,13 +193,12 @@ module comms #(
     .busy_out(busy_transmitting_inf)
   );
 
-  logic [$clog2(DATA_PIECES+WEIGHT_PIECES+OP_PIECES)-1:0] piece_counter; // Note: WEIGHT is widest type
+
+  logic [$clog2(WEIGHT_PIECES+DATA_PIECES)-1:0] piece_counter; // Note: WEIGHT is widest type
   logic grabbed_register;
   always_ff @(posedge clk_in)begin
     receive <= 0;
     transmit <= 0;
-
-    data_write_enable_out <= 0;
 
     if (rst_in)begin
       busy_out <= 0;
@@ -225,7 +224,7 @@ module comms #(
               receive <= 1;
             end
           end
-          if (new_data_piece)begin
+          if (piece_data)begin
             data_write_enable_out <= 1;
             piece_counter <= piece_counter + 1;
           end
@@ -240,7 +239,7 @@ module comms #(
               receive <= 1;
             end
           end
-          if (new_weight_piece)begin
+          if (piece_weight)begin
             weight_write_enable_out <= 1;
             piece_counter <= piece_counter + 1;
           end
@@ -255,7 +254,7 @@ module comms #(
               receive <= 1;
             end
           end
-          if (new_op_piece)begin
+          if (piece_op)begin
             op_write_enable_out <= 1;
             piece_counter <= piece_counter + 1;
           end
