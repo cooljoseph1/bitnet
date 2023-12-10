@@ -21,7 +21,7 @@ for i, op in enumerate(ops):
     comms.send(ser, 'op', i, bin(op)[2:].zfill(8))
 
 # Read INFERENCE
-time.sleep(0.1)
+time.sleep(1.0)
 print(comms.recv(ser, 'inf', 0))
 
 ser.close()

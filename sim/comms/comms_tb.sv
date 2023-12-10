@@ -19,7 +19,7 @@ module comms_tb();
   comms #(
     .DATA_DEPTH(1<<16),
     .DATA_BRAM_WIDTH(64),
-    .DATA_PIECES(2)
+    .DATA_PIECES(32)
   ) test_comms (
     .clk_in(clk_in),
     .rst_in(rst_in),
@@ -69,8 +69,8 @@ module comms_tb();
     end
 
     // Send test data
-    for (int i=0; i<2; i=i+1)begin
-      #250
+    for (int i=0; i<32; i=i+1)begin
+      // #250
       for (int j=0; j<8; j=j+1)begin
         #250
         rx_in = 0;
@@ -99,7 +99,7 @@ module comms_tb();
       rx_in = 1;
     end
 
-    #50000
+    #800000
 
     $finish;
   end

@@ -10,7 +10,7 @@ module rx_tb();
   logic busy;
 
   rx #(
-    .CLK_BAUD_RATIO(2),
+    .CLK_BAUD_RATIO(5),
     .DATA_SIZE(4)
   ) test_rx (
     .clk_in(clk_in),
@@ -38,18 +38,18 @@ module rx_tb();
     rx_in = 0;
     
     // Send 4'b0110
-    #20
+    #50
     rx_in = 0;
-    #20
+    #50
     rx_in = 1;
-    #20
+    #50
     rx_in = 1;
-    #20
+    #50
     rx_in = 0;
 
-    #20
+    #50
     rx_in = 1;
-    #20
+    #50
 
     $finish;
   end

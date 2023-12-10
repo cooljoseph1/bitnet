@@ -83,7 +83,7 @@ module comms #(
   // RECEIVING (LAPTOP -> FPGA)
   logic receive;
 
-  logic piece_data;
+  logic new_data_piece;
   recv #(
     .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
     .FRAME_SIZE(FRAME_SIZE),
@@ -94,11 +94,11 @@ module comms #(
     .receive_in(receive && header[1:0]==DATA),
     .rx_in(rx_in),
     .data_out(data_register_out),
-    .new_data_out(piece_data)
+    .new_data_out(new_data_piece)
   );
 
     
-  logic piece_weight;
+  logic new_weight_piece;
   recv #(
     .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
     .FRAME_SIZE(FRAME_SIZE),
@@ -109,10 +109,10 @@ module comms #(
     .receive_in(receive && header[1:0]==WEIGHT),
     .rx_in(rx_in),
     .data_out(weight_register_out),
-    .new_data_out(piece_weight)
+    .new_data_out(new_weight_piece)
   );
 
-  logic piece_op;
+  logic new_op_piece;
   recv #(
     .CLK_BAUD_RATIO(CLK_BAUD_RATIO),
     .FRAME_SIZE(FRAME_SIZE),
@@ -123,7 +123,7 @@ module comms #(
     .receive_in(receive && header[1:0]==OP),
     .rx_in(rx_in),
     .data_out(op_register_out),
-    .new_data_out(piece_op)
+    .new_data_out(new_op_piece)
   );
 
   // TRANSMITTING (FPGA -> LAPTOP)
@@ -200,6 +200,8 @@ module comms #(
     receive <= 0;
     transmit <= 0;
 
+    data_write_enable_out <= 0;
+
     if (rst_in)begin
       busy_out <= 0;
     end else if (new_header)begin
@@ -215,48 +217,45 @@ module comms #(
     end else if (busy_out)begin
       case (header[2:0])
         {WRITE, DATA}: begin // Write to DATA
-          if (data_write_enable_out)begin
-            data_write_enable_out <= 0;
+          if (data_write_enable_out && piece_counter < DATA_PIECES-1)begin
             data_addr_out <= data_addr_out + 1;
-            if (piece_counter == DATA_PIECES)begin
+          end
+          if (new_data_piece)begin
+            data_write_enable_out <= 1;
+            piece_counter <= piece_counter + 1;
+            if (piece_counter == DATA_PIECES-1)begin
               busy_out <= 0;
             end else begin
               receive <= 1;
             end
-          end
-          if (piece_data)begin
-            data_write_enable_out <= 1;
-            piece_counter <= piece_counter + 1;
           end
         end
         {WRITE, WEIGHT}: begin // Write to WEIGHT
           if (weight_write_enable_out)begin
-            weight_write_enable_out <= 0;
             weight_addr_out <= weight_addr_out + 1;
-            if (piece_counter == WEIGHT_PIECES)begin
+          end
+          if (new_weight_piece)begin
+            weight_write_enable_out <= 1;
+            piece_counter <= piece_counter + 1;
+            if (piece_counter == WEIGHT_PIECES-1)begin
               busy_out <= 0;
             end else begin
               receive <= 1;
             end
-          end
-          if (piece_weight)begin
-            weight_write_enable_out <= 1;
-            piece_counter <= piece_counter + 1;
           end
         end
         {WRITE, OP}: begin // Write to OP
           if (op_write_enable_out)begin
-            op_write_enable_out <= 0;
             op_addr_out <= op_addr_out + 1;
-            if (piece_counter == OP_PIECES)begin
+          end
+          if (new_op_piece)begin
+            op_write_enable_out <= 1;
+            piece_counter <= piece_counter + 1;
+            if (piece_counter == OP_PIECES-1)begin
               busy_out <= 0;
             end else begin
               receive <= 1;
             end
-          end
-          if (piece_op)begin
-            op_write_enable_out <= 1;
-            piece_counter <= piece_counter + 1;
           end
         end
         {READ, DATA}: begin // Read from DATA

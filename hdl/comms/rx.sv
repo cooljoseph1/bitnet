@@ -20,11 +20,12 @@ module rx #(
       busy_out <= 0;
       baud_checker <= 0;
       counter <= 0;
-    end else if (baud_checker == 0) begin
-      if (!busy_out && !rx_in) begin // start busy_out
+    end else if (!busy_out && !rx_in) begin // start busy_out
         busy_out <= 1;
         counter <= 0;
-      end else if (busy_out) begin
+        baud_checker <= 1;
+    end else if (baud_checker == 0) begin
+      if (busy_out) begin
         counter <= counter + 1;
         if (counter == DATA_SIZE)begin
           busy_out <= 0;

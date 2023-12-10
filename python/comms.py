@@ -26,6 +26,8 @@ def prepare_message(io, loc, addr, bits=None):
     addr_bits = bin(addr & 0xffff)[2:].zfill(16) # last 16 bits
     header = '00000' + io_bits[io] + loc_bits[loc] + addr_bits
     msg = header + (bits or '')
+    print(header)
+    print(bits)
 
     return int(msg, 2).to_bytes(len(msg)//8, byteorder='big')
 

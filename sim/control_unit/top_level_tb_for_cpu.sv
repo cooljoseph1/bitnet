@@ -7,7 +7,7 @@ module top_level_tb_for_cpu();
   logic rx_in;
   logic tx_out;
 
-  logic [7:0] word = 8'h36;
+  logic [7:0] word = 8'h00;
 
   /* The instruction set in more readable terms */
   localparam SET_I_TO_0 = 0; // "I = 0"
@@ -38,15 +38,18 @@ module top_level_tb_for_cpu();
   localparam BACKPROP = 25; // "BACKPROP"
   localparam STOCH_GRAD = 26; // "STOCH GRAD"
 
+  localparam DATA_SIZE=2048;
+  localparam DATA_BRAM_WIDTH=64;
+
   top_level #(
     .DATA_ADDRS(2),
-	  .DATA_SIZE(64),
-	  .DATA_BRAM_WIDTH(8),
+	  .DATA_SIZE(DATA_SIZE),
+	  .DATA_BRAM_WIDTH(DATA_BRAM_WIDTH),
 	  .WEIGHT_ADDRS(2),
 	  .WEIGHT_SIZE(96),
     .WEIGHT_BRAM_WIDTH(8),
 	  .HEAP_ADDRS(2),
-    .OP_ADDRS(12),
+    .OP_ADDRS(1024),
     .OP_SIZE(8),
     .OP_BRAM_WIDTH(8)
   ) test_top_level (
@@ -84,9 +87,8 @@ module top_level_tb_for_cpu();
       rx_in = 1;
     end
     
-    for (int i=0; i<1; i=i+1)begin
-      #250
-      for (int j=0; j<8; j=j+1)begin
+    for (int i=0; i<DATA_SIZE/DATA_BRAM_WIDTH; i=i+1)begin
+      for (int j=0; j<DATA_BRAM_WIDTH/8; j=j+1)begin
         #250
         rx_in = 0;
         for (int k=0; k<8; k=k+1)begin
@@ -98,7 +100,7 @@ module top_level_tb_for_cpu();
       end
     end
 
-    #10000
+    #40000
 
     
     // Send ops
@@ -114,7 +116,6 @@ module top_level_tb_for_cpu();
     end
 
     for (int i=0; i<1; i=i+1)begin
-      #250
       for (int j=0; j<1; j=j+1)begin
         #250
         rx_in = 0;
@@ -130,7 +131,6 @@ module top_level_tb_for_cpu();
     #1000
 
     for (int i=0; i < 3; i=i+1)begin
-      #250
       rx_in = 0;
       for (int j=0; j<8; j=j+1)begin
         #250
@@ -141,7 +141,6 @@ module top_level_tb_for_cpu();
     end
 
     for (int i=0; i<1; i=i+1)begin
-      #250
       for (int j=0; j<1; j=j+1)begin
         #250
         rx_in = 0;
@@ -157,7 +156,6 @@ module top_level_tb_for_cpu();
     #1000
 
     for (int i=0; i < 3; i=i+1)begin
-      #250
       rx_in = 0;
       for (int j=0; j<8; j=j+1)begin
         #250
@@ -168,7 +166,6 @@ module top_level_tb_for_cpu();
     end
 
     for (int i=0; i<1; i=i+1)begin
-      #250
       for (int j=0; j<1; j=j+1)begin
         #250
         rx_in = 0;
@@ -181,7 +178,7 @@ module top_level_tb_for_cpu();
       end
     end
 
-    #1000
+    #10000
 
     // Read from INFERENCE
     for (int i=0; i < 3; i=i+1)begin
@@ -195,8 +192,7 @@ module top_level_tb_for_cpu();
       rx_in = 1;
     end
 
-    #20000
-    // #400000
+    #400000
     // rst_in = 0;
     // end
 
