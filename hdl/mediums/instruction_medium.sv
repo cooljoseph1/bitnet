@@ -9,7 +9,7 @@ module instruction_medium #(
     /* communication with cpu */
     input logic [ADDR_SIZE-1:0] addr_in,
     output wire [BRAM_WIDTH-1:0] instruction_out,
-    output wire finished_out,
+    output wire valid_out,
 
     /* communication with the BRAM */
     input wire [BRAM_WIDTH-1:0] bram_dout, // the dout from the BRAM
@@ -32,7 +32,7 @@ module instruction_medium #(
   logic [ADDR_SIZE-1:0] prev_addr = 0;
 
   logic finished;
-  assign finished_out = finished;
+  assign valid_out = finished;
 
   always_ff @(posedge clk_in) begin
     if (rst_in) begin
