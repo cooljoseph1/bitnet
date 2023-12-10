@@ -109,6 +109,7 @@ module top_level #(
 
   /* First, pair the instruction with BRAM via a medium */
   logic [OP_ADDR_SIZE-1:0] instruction_cpu_addr;
+  logic instruction_ready;
   logic [OP_SIZE-1:0] instruction;
   logic instruction_valid;
 
@@ -127,6 +128,7 @@ module top_level #(
 
     /* communication with cpu */
     .addr_in(instruction_cpu_addr),
+    .ready_in(instruction_ready),
     .instruction_out(instruction),
     .valid_out(instruction_valid),
 
@@ -274,6 +276,7 @@ module top_level #(
 
     /* communication with instruction medium. */
     .instruction_addr_out(instruction_cpu_addr), // pointer to the instruction we want in memory
+    .instruction_ready_out(instruction_ready),
     .instruction_in(instruction), // the instruction from the instruction medium
     .instruction_valid_in(instruction_valid),
     

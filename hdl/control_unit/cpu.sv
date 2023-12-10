@@ -17,6 +17,7 @@ module cpu #(
 
     /* communication with instruction medium. */
     output logic [I_SIZE-1:0] instruction_addr_out, // pointer to the instruction we want in memory
+    output logic instruction_ready_out,
     input wire [INSTRUCTION_SIZE-1:0] instruction_in, // the instruction from the instruction medium
     input wire instruction_valid_in,
     
@@ -155,6 +156,11 @@ module cpu #(
       instruction <= SET_I_TO_0;
       ready <= 1;
     end else if (ready) begin
+      if (!instruction_valid_in) begin
+        instruction_ready_out <= 1'b0;
+      end else begin
+        instruction_ready_out <= 1'b1;
+      end
       if (instruction_valid_in) begin
         instruction <= instruction_in;
 

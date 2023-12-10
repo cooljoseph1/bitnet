@@ -8,6 +8,7 @@ module instruction_medium #(
 
     /* communication with cpu */
     input wire [ADDR_SIZE-1:0] addr_in,
+    input wire ready_in,
     output logic [OP_SIZE-1:0] instruction_out,
     output logic valid_out,
 
@@ -25,21 +26,21 @@ module instruction_medium #(
   localparam ADDR_SIZE = $clog2(ADDRS);
 
   assign bram_we = 1'b0;
-  assign bram_addr = addr_in;
   assign bram_regce = 1'b1;
   assign bram_din = {OP_SIZE{1'b0}};
 
-  logic [ADDR_SIZE-1:0] prev_addr = 0;
-
-  logic finished;
+  logic finished = 1'b0;
   assign valid_out = finished;
+
+  logic [ADDR_SIZE-1:0] read_addr = 0;
+  assign bram_addr = read_addr;
 
   always_ff @(posedge clk_in) begin
     if (rst_in) begin
-      prev_addr <= -1;
+      read_addr <= 0;
       finished <= 1'b0;
-    end else if (prev_addr != addr_in) begin
-      prev_addr <= addr_in;
+    end else if (ready_in) begin
+      read_addr <= addr_in;
       finished <= 1'b0;
     end else begin
       finished <= 1'b1;
