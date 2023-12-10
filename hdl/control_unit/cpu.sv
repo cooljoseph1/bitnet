@@ -104,6 +104,7 @@ module cpu #(
   );
 
   /* The instruction set in more readable terms */
+  /* ----- PYTHON PARSING BEGINS HERE ----- */
   localparam SET_I_TO_0 = 0; // "I = 0"
   localparam SET_TRIT_TO_NEXT_VALUE = 1; // "TRIT = NEXT"
   localparam SET_H_TO_NEXT_VALUE = 2; // "H = NEXT"
@@ -131,6 +132,7 @@ module cpu #(
   localparam INTERWEAVE = 24; // "INTERWEAVE"
   localparam BACKPROP = 25; // "BACKPROP"
   localparam STOCH_GRAD = 26; // "STOCH GRAD"
+  /* ----- PYTHON PARSING ENDS HERE ----- */
 
   /* current instruction we are working on */
   logic [INSTRUCTION_SIZE-1:0] instruction = SET_I_TO_0;

@@ -1,0 +1,29 @@
+# Which instructions have been tested?
+
+- [ ] `SET_I_TO_0`
+- [ ] `SET_TRIT_TO_NEXT_VALUE`
+- [ ] `SET_H_TO_NEXT_VALUE`
+- [ ] `D_INCREMENT`
+- [ ] `D_DECREMENT`
+- [ ] `A_INCREMENT`
+- [ ] `A_DECREMENT`
+- [x] `SET_X_TO_VALUE_AT_D0`
+- [x] `SET_Y_TO_VALUE_AT_D1`
+- [x] `SET_XY_TO_VALUE_AT_D`
+- [x] `SET_INFERENCE_TO_Y`
+- [ ] `SET_W_TO_VALUE_AT_A`
+- [ ] `SET_VALUE_AT_A_TO_W`
+- [ ] `SET_X_TO_VALUE_AT_H`
+- [ ] `SET_VALUE_AT_H_TO_X`
+- [x] `SWAP_XY`
+- [x] `SET_X_TO_Y`
+- [x] `SET_Y_TO_X`
+- [x] `SET_X_TO_X_XOR_Y`
+- [x] `SET_Y_TO_X_XOR_Y`
+- [x] `SET_X_TO_X_AND_Y`
+- [x] `SET_Y_TO_X_AND_Y`
+- [x] `SET_X_TO_X_OR_Y`
+- [x] `SET_Y_TO_X_OR_Y`
+- [ ] `INTERWEAVE`
+- [ ] `BACKPROP`
+- [ ] `STOCH_GRAD`
