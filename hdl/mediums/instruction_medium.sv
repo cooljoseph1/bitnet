@@ -1,6 +1,6 @@
 module instruction_medium #(
     parameter ADDRS = 256,
-    parameter BRAM_WIDTH = 8
+    parameter OP_SIZE = 8
   ) (
     /* clock and reset */
     input wire clk_in,
@@ -8,15 +8,15 @@ module instruction_medium #(
 
     /* communication with cpu */
     input logic [ADDR_SIZE-1:0] addr_in,
-    output wire [BRAM_WIDTH-1:0] instruction_out,
+    output wire [OP_SIZE-1:0] instruction_out,
     output wire valid_out,
 
     /* communication with the BRAM */
-    input wire [BRAM_WIDTH-1:0] bram_dout, // the dout from the BRAM
+    input wire [OP_SIZE-1:0] bram_dout, // the dout from the BRAM
     output logic [ADDR_SIZE-1:0] bram_addr, // the addr from the BRAM
     output logic bram_we, // the we from the BRAM
     output logic bram_regce, // the regce from the BRAM
-    output logic [BRAM_WIDTH-1:0] bram_din // the din from the BRAM
+    output logic [OP_SIZE-1:0] bram_din // the din from the BRAM
   );
 
 
@@ -27,7 +27,7 @@ module instruction_medium #(
   assign bram_we = 1'b0;
   assign bram_addr = addr_in;
   assign bram_regce = 1'b1;
-  assign bram_din = {BRAM_WIDTH{1'b0}};
+  assign bram_din = {OP_SIZE{1'b0}};
 
   logic [ADDR_SIZE-1:0] prev_addr = 0;
 

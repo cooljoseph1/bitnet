@@ -28,7 +28,7 @@ module cpu #(
     input wire data_medium_finished_in,
 
     /* communication with weight medium. */
-    output logic [A_SIZE-1:0] weight_pointer_out, // tell the weight medium where to read/write
+    output logic [A_SIZE-1:0] weight_addr_out, // tell the weight medium where to read/write
     input wire [W_SIZE-1:0] weight_in, // input from the weight medium
     output logic [W_SIZE-1:0] weight_out, // output to the weight medium
     output logic weight_read_enable_out,
@@ -36,7 +36,7 @@ module cpu #(
     input wire weight_medium_finished_in,
 
     /* communication with heap medium. */
-    output logic [H_SIZE-1:0] heap_pointer_out, // tell the heap medium where to read/write
+    output logic [H_SIZE-1:0] heap_addr_out, // tell the heap medium where to read/write
     input wire [X_SIZE-1:0] heap_in, // input from the heap medium
     output logic [X_SIZE-1:0] heap_out, // output to the heap medium
     output logic heap_read_enable_out,

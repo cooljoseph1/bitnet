@@ -8,6 +8,7 @@ module fc #(
  (
     input wire clk_in,
     input wire rst_in,
+    input wire [7:0] rnd_in,
     input wire oscillator,
     input wire fd_prop, // signal to start forward propagation
     input wire bk_prop, // signal to start backward propagation
@@ -43,9 +44,10 @@ module fc #(
     for(l = 0; l < NUM_LAYERS; l = l + 1) begin
       for(i = 0; i < N; i = i + 3**(l + 1)) begin
         for(j = i; j < (i + 3**l); j = j + 1) begin
-          unit3to3 unit(
+          unit3to3 #(.THRESHOLD((213 * (l + i * i + j * j * j + 2)) % 150 + 101)) unit(
             .rst_in(rst_in),
             .clk_in(clk_in),
+            .rnd_in(rnd_in),
             .oscillator(oscillator),
             .fd_prop(fd_prop_dones[l]),
             .bk_prop(bk_prop_dones[l+1]),
