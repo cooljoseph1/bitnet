@@ -15,34 +15,28 @@ module cpu #(
     input wire clk_in,
     input wire rst_in,
 
+    output logic [X_SIZE-1:0] inference_out,
+    output logic inference_valid,
+
     /* communication with instruction medium. */
-    output logic instruction_pointer_out; // pointer to the instruction we want in memory
+    output logic instruction_addr_out, // pointer to the instruction we want in memory
     input wire [INSTRUCTION_SIZE-1:0] instruction_in, // the instruction from the instruction medium
-    // There is only one half of the ready/valid communication because we assume that instruction_pointer_out is always valid
-    // and the instruction medium is always ready.
-    input wire instruction_valid, // instruction_in is now a valid instruction!
-    output logic instruction_ready, // tell the program counter that we are ready for a new instruction
-
+    input wire instruction_medium_finished_in,
+    
     /* communication with data medium. */
-    output logic [$clog2(DATA_LENGTH)-1:0] data_pointer_out; // tell the data medium what data to extract
-    input wire [X_SIZE-1:0] data_x_in; // x value of data at the above pointer address
-    input wire [X_SIZE-1:0] data_y_in; // y value of data at the above pointer address
+    output logic [$clog2(DATA_LENGTH)-1:0] data_addr_out, // tell the data medium what data to extract
+    input wire [X_SIZE-1:0] data_x_in, // x value of data at the above pointer address
+    input wire [X_SIZE-1:0] data_y_in, // y value of data at the above pointer address
     // There are no other ready/valid signals because everything else is always valid and ready
-    input wire data_in_valid;
-
-    /* communication with inference medium. */
-    output logic [DATA_SIZE-1:0] inference_out, // output to the weight medium
-    output logic inference_valid, // output a new inference to the medium when this is high for one clock cycle
-    // No other valid/ready signals because it is assumed to be always ready
+    input wire data_medium_finished_in,
 
     /* communication with weight medium. */
     output logic [$clog2(WEIGHT_LENGTH)-1:0] weight_pointer_out, // tell the weight medium what weight to extract
     input wire [W_SIZE-1:0] weight_in, // input from the weight medium
     output logic [W_SIZE-1:0] weight_out, // output to the weight medium
-    // No ready signal for weight_in because the cpu is always ready to receive when it asks for an input
-    input wire weight_in_valid,
-    input wire weight_out_ready,
-    output logic weight_out_valid,
+    output logic weight_read_enable_out,
+    output logic weight_write_enable_out,
+    input wire weight_medium_finished_in,
 
     /* communication with the stack */
     input wire [X_SIZE-1:0] stack_in, // the top of the stack
@@ -51,7 +45,6 @@ module cpu #(
     input wire stack_in_valid, // has the stack finished reading from the top? this is probably usually true
     output logic stack_in_ready, // is the CPU ready to receive from stack_in? This is only used so that the stack knows to drop the value on top
     output logic stack_out_valid, // Does the CPU want to push a value on top of the stack?
-    
   );
 
   localparam IP_SIZE = $clog2(PROGRAM_LENGTH);
@@ -60,10 +53,11 @@ module cpu #(
 
   /* Pointers */
   logic [IP_SIZE-1:0] instruction_pointer = 0;
+  assign instruction_addr_out = instruction_pointer;
   logic [D_SIZE-1:0] data_pointer = 0;
-  assign data_poointer_out = data_pointer;
+  assign data_addr_out = data_pointer;
   logic [A_SIZE-1:0] weight_pointer = 0;
-  assign weight_pointer_out = weight_pointer;
+  assign weight_addr_out = weight_pointer;
 
   /* Registers */
   logic [X_SIZE-1:0] x_register = 0;
@@ -156,8 +150,6 @@ module cpu #(
   logic [INSTRUCTION_SIZE-1:0] instruction = SET_I_TO_0;
   /* ready for the next instruction */
   logic ready = 1;
-  // Note that this is just the same as the output wire:
-  assign instruction_ready = ready;
 
   always_ff @(posedge clk_in) begin
     if (rst_in) begin
@@ -287,24 +279,26 @@ module cpu #(
       case(instruction_in)
         SET_X_TO_VALUE_AT_D0: begin
           x_register <= data_x_in;
-          ready <= data_in_valid;
+          ready <= data_medium_finished_in;
         end
         SET_Y_TO_VALUE_AT_D1: begin
           y_register <= data_y_in;
-          ready <= data_in_valid;
+          ready <= data_medium_finished_in;
         end
         SET_XY_TO_VALUE_AT_D: begin
           x_register <= data_x_in;
           y_register <= data_y_in;
-          ready <= data_in_valid;
+          ready <= data_medium_finished_in;
         end
         SET_W_TO_VALUE_AT_A: begin
           w_register <= weight_in;
-          ready <= weight_in_valid;
+          weight_read_enable_out <= 1'b1;
+          ready <= 0;
         end
         SET_VALUE_AT_A_TO_W: begin
-          weight_out <= weight_out_ready? w_register : weight_out;
-          ready <= weight_out_ready;
+          weight_out <= w_register;
+          weight_write_enable_out <= 1'b1;
+          ready <= 0;
         end
         default: begin
           // do nothing
@@ -425,24 +419,25 @@ module cpu #(
       case(instruction)
         SET_X_TO_VALUE_AT_D0: begin
           x_register <= data_x_in;
-          ready <= data_in_valid;
+          ready <= data_medium_finished_in;
         end
         SET_Y_TO_VALUE_AT_D1: begin
           y_register <= data_y_in;
-          ready <= data_in_valid;
+          ready <= data_medium_finished_in;
         end
         SET_XY_TO_VALUE_AT_D: begin
           x_register <= data_x_in;
           y_register <= data_y_in;
-          ready <= data_in_valid;
+          ready <= data_medium_finished_in;
         end
         SET_W_TO_VALUE_AT_A: begin
           w_register <= weight_in;
-          ready <= weight_in_valid;
+          weight_read_enable_out <= 1'b0;
+          ready <= weight_medium_finished_in;
         end
         SET_VALUE_AT_A_TO_W: begin
-          weight_out <= weight_out_ready? w_register : weight_out;
-          ready <= weight_out_ready;
+          weight_write_enable_out <= 1'b0;
+          ready <= weight_medium_finished_in;
         end
         default: begin
           // do nothing
