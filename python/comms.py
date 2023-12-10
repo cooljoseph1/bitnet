@@ -48,6 +48,6 @@ if __name__ == "__main__":
             print("{}: {} [{}]".format(port, desc, hwid))
     
     ser = serial.Serial('/dev/ttyUSB1', 4_000_000)
-    send(ser, 'data', 1, '10'*512)
-    print(recv(ser, 'inf', 0))
+    send(ser, 'data', 1, '10'*1024)
+    print(recv(ser, 'data', 1))
     ser.close()
