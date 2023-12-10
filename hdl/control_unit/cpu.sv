@@ -22,6 +22,7 @@ module cpu #(
     
     /* communication with data medium. */
     output logic [D_SIZE-1:0] data_addr_out, // tell the data medium where to read
+    output logic data_read_enable_out,
     input wire [X_SIZE-1:0] data_x_in, // x value of data at the above pointer address
     input wire [X_SIZE-1:0] data_y_in, // y value of data at the above pointer address
     // There are no other ready/valid signals because everything else is always valid and ready
@@ -105,10 +106,10 @@ module cpu #(
   localparam SET_I_TO_0 = 0; // "I = 0"
   localparam SET_TRIT_TO_NEXT_VALUE = 1; // "TRIT = NEXT"
   localparam SET_H_TO_NEXT_VALUE = 2; // "H = NEXT"
-  localparam D_INCREMNT = 3; // "D++"
-  localparam D_DECREMNT = 4; // "D--"
-  localparam A_INCREMNT = 5; // "A++"
-  localparam A_DECREMNT = 6; // "A--"
+  localparam D_INCREMENT = 3; // "D++"
+  localparam D_DECREMENT = 4; // "D--"
+  localparam A_INCREMENT = 5; // "A++"
+  localparam A_DECREMENT = 6; // "A--"
   localparam SET_X_TO_VALUE_AT_D0 = 7; // "X = *D[0]"
   localparam SET_Y_TO_VALUE_AT_D1 = 8; // "Y = *D[1]"
   localparam SET_XY_TO_VALUE_AT_D = 9; // "X, Y = *D"
@@ -180,19 +181,19 @@ module cpu #(
 
         /* logic for incrementing/decrementing other pointers */
         case(instruction_in)
-          D_INCREMNT: begin
+          D_INCREMENT: begin
             data_pointer <= (data_pointer == (DATA_LENGTH - 1))? 0 : data_pointer + 1; // increment by 1, rolling over if too large
             ready <= 1;
           end
-          D_DECREMNT: begin
+          D_DECREMENT: begin
             data_pointer <= (data_pointer == 0)? (DATA_LENGTH - 1) : data_pointer - 1; // decrement by 1, rolling over if too small
             ready <= 1;
           end
-          A_INCREMNT: begin
+          A_INCREMENT: begin
             weight_pointer <= (weight_pointer == (WEIGHT_LENGTH - 1))? 0 : weight_pointer + 1; // increment by 1, rolling over if too large
             ready <= 1;
           end
-          A_DECREMNT: begin
+          A_DECREMENT: begin
             weight_pointer <= (weight_pointer == 0)? (WEIGHT_LENGTH - 1) : weight_pointer - 1; // decrement by 1, rolling over if too small
             ready <= 1;
           end
@@ -205,16 +206,19 @@ module cpu #(
         case(instruction_in)
           SET_X_TO_VALUE_AT_D0: begin
             x_register <= data_x_in;
-            ready <= data_medium_finished_in;
+            data_read_enable_out <= 1'b1;
+            ready <= 1'b0;
           end
           SET_Y_TO_VALUE_AT_D1: begin
             y_register <= data_y_in;
-            ready <= data_medium_finished_in;
+            data_read_enable_out <= 1'b1;
+            ready <= 1'b0;
           end
           SET_XY_TO_VALUE_AT_D: begin
             x_register <= data_x_in;
             y_register <= data_y_in;
-            ready <= data_medium_finished_in;
+            data_read_enable_out <= 1'b1;
+            ready <= 1'b0;
           end
           SET_W_TO_VALUE_AT_A: begin
             w_register <= weight_in;
@@ -318,7 +322,7 @@ module cpu #(
     end else begin // what do we do if we're not ready for a new operation?
       // Only some operations take more than one clock cycle:
 
-      case(instruction_in)
+      case(instruction)
         SET_TRIT_TO_NEXT_VALUE: begin
           trit <= instruction_in;
           ready <= instruction_valid_in;
@@ -338,15 +342,18 @@ module cpu #(
       case(instruction)
         SET_X_TO_VALUE_AT_D0: begin
           x_register <= data_x_in;
+          data_read_enable_out <= 1'b0;
           ready <= data_medium_finished_in;
         end
         SET_Y_TO_VALUE_AT_D1: begin
           y_register <= data_y_in;
+          data_read_enable_out <= 1'b0;
           ready <= data_medium_finished_in;
         end
         SET_XY_TO_VALUE_AT_D: begin
           x_register <= data_x_in;
           y_register <= data_y_in;
+          data_read_enable_out <= 1'b0;
           ready <= data_medium_finished_in;
         end
         SET_W_TO_VALUE_AT_A: begin

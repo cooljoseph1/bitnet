@@ -142,6 +142,7 @@ module top_level #(
 
   /* Second, pair the data with BRAM via a medium */
   logic [DATA_ADDR_SIZE-1:0] data_cpu_addr;
+  logic data_cpu_re;
   logic [X_SIZE-1:0] data_x;
   logic [X_SIZE-1:0] data_y;
   logic data_finished;
@@ -162,6 +163,7 @@ module top_level #(
 
     /* communication with cpu */
     .addr_in(data_cpu_addr),
+    .read_enable(data_cpu_re),
     .x_out(data_x),
     .y_out(data_y),
     .finished_out(data_finished),
@@ -278,6 +280,7 @@ module top_level #(
     
     /* communication with data medium. */
     .data_addr_out(data_cpu_addr), // tell the data medium where to read
+    .data_read_enable_out(data_cpu_re),
     .data_x_in(data_x), // x value of data at the above pointer address
     .data_y_in(data_y), // y value of data at the above pointer address
     .data_medium_finished_in(data_finished),

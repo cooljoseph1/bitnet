@@ -9,6 +9,7 @@ module data_medium #(
 
     /* communication with cpu */
     input wire [ADDR_SIZE-1:0] addr_in, // tell the data medium what data to extract
+    input wire read_enable,
     output logic [X_WIDTH-1:0] x_out, // value of data at the above addr address
     output logic [X_WIDTH-1:0] y_out, // value of data at the above addr address
     output logic finished_out,
@@ -36,7 +37,7 @@ module data_medium #(
     .addr_in(addr_in),
     .data_out({x_out, y_out}),
     .data_in({X_WIDTH{2'b00}}),
-    .read_enable(1'b1),
+    .read_enable(read_enable),
     .write_enable(1'b0),
     .finished_out(finished_out),
 
