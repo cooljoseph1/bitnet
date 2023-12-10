@@ -9,7 +9,6 @@ module top_level #(
 	parameter WEIGHT_SIZE = 3072,
 	parameter WEIGHT_BRAM_WIDTH = 64,
 	parameter HEAP_ADDRS = 128,
-	parameter HEAP_BRAM_WIDTH = 64,
   parameter OP_ADDRS = 1024,
   parameter OP_SIZE = 8,
   parameter OP_BRAM_WIDTH = 8
@@ -224,14 +223,14 @@ module top_level #(
   logic heap_cpu_re;
   logic heap_finished;
 
-  logic [HEAP_BRAM_WIDTH-1:0] heap_dout;
+  logic [DATA_BRAM_WIDTH-1:0] heap_dout;
   logic [HEAP_BRAM_ADDR_SIZE-1:0] heap_bram_addr;
   logic heap_bram_we;
   logic heap_bram_regce;
-  logic [HEAP_BRAM_WIDTH-1:0] heap_din;
+  logic [DATA_BRAM_WIDTH-1:0] heap_din;
   heap_medium #(
     .ADDRS(HEAP_ADDRS),
-    .BRAM_WIDTH(HEAP_BRAM_WIDTH),
+    .BRAM_WIDTH(DATA_BRAM_WIDTH),
     .PIECES(X_PIECES)
   ) heap_medium_module (
     /* clock and reset */
@@ -355,7 +354,7 @@ module top_level #(
   );
 
   xilinx_true_dual_port_read_first_2_clock_ram #(
-    .RAM_WIDTH(HEAP_BRAM_WIDTH),					   // Specify RAM weight width
+    .RAM_WIDTH(DATA_BRAM_WIDTH),					   // Specify RAM weight width
     .RAM_DEPTH(HEAP_DEPTH),					 // Specify RAM depth (number of entries)
     .RAM_PERFORMANCE("HIGH_PERFORMANCE"), // Select "HIGH_PERFORMANCE" or "LOW_LATENCY"
     .INIT_FILE("")						// Specify name/location of RAM initialization file if using one (leave blank if not)
