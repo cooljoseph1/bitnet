@@ -1,52 +1,36 @@
-var instructionSet = [
-    "TRIT = 0",
-    "TRIT = 1",
-    "TRIT = 2",
-    "TRIT = 3",
-    "TRIT = 4",
-    "TRIT = 5",
-    "TRIT = 6",
-    "TRIT = 7",
-    "TRIT = 8",
-    "TRIT = 9",
-    "TRIT = 10",
-    "TRIT = 11",
-    "TRIT = 12",
-    "TRIT = 13",
-    "TRIT = 14",
-    "TRIT = 15",
-    "I = 0",
-    "D++",
-    "D--",
-    "A++",
-    "A--",
-    "X = *D[0]",
-    "Y = *D[1]",
-    "X, Y = *D",
-    "INFERENCE = Y",
-    "W = *A",
-    "*A = W",
-    "X, Y = Y, X",
-    "X = Y",
-    "Y = X",
-    "PUSH X",
-    "PUSH Y",
-    "POP X",
-    "POP Y",
-    "X = X ^ Y",
-    "Y = X ^ Y",
-    "X = X & Y",
-    "Y = X & Y",
-    "X = X | Y",
-    "Y = X | Y",
-    "INTERWEAVE",
-    "BACKPROP",
-    "STOCH GRAD",
-]
+var instructionDictionary = {
+  "SET_I_TO_0": 0,
+  "SET_TRIT_TO_NEXT_VALUE": 1,
+  "SET_H_TO_NEXT_VALUE": 2,
+  "D_INCREMENT": 3,
+  "D_DECREMENT": 4,
+  "A_INCREMENT": 5,
+  "A_DECREMENT": 6,
+  "SET_X_TO_VALUE_AT_D0": 7,
+  "SET_Y_TO_VALUE_AT_D1": 8,
+  "SET_XY_TO_VALUE_AT_D": 9,
+  "SET_INFERENCE_TO_Y": 10,
+  "SET_W_TO_VALUE_AT_A": 11,
+  "SET_VALUE_AT_A_TO_W": 12,
+  "SET_X_TO_VALUE_AT_H": 13,
+  "SET_VALUE_AT_H_TO_X": 14,
+  "SWAP_XY": 15,
+  "SET_X_TO_Y": 16,
+  "SET_Y_TO_X": 17,
+  "SET_X_TO_X_XOR_Y": 18,
+  "SET_Y_TO_X_XOR_Y": 19,
+  "SET_X_TO_X_AND_Y": 20,
+  "SET_Y_TO_X_AND_Y": 21,
+  "SET_X_TO_X_OR_Y": 22,
+  "SET_Y_TO_X_OR_Y": 23,
+  "INTERWEAVE": 24,
+  "BACKPROP": 25,
+  "STOCH_GRAD": 26
+};
 
-var instructionDictionary = instructionSet.reduce((acc, value, index) => {
-    acc[index] = value.trim().replaceAll(' ', '').toUpperCase();
-    return acc;
-  }, {});
+// var instructionDictionary = instructionSet.reduce((acc, value, index) => {
+//     acc[index] = value.trim().replaceAll(' ', '').toUpperCase();
+//     return acc;
+//   }, {});
 
 console.log(instructionDictionary);
