@@ -20,6 +20,7 @@ read_verilog -sv [ glob ./hdl/*.sv ]
 read_verilog -sv [ glob ./hdl/comms/*.sv ]
 read_verilog -sv [ glob ./hdl/control_unit/*.sv ]
 read_verilog -sv [ glob ./hdl/mediums/*.sv ]
+read_verilog -sv [ glob ./hdl/modules/*.sv ]
 # read_verilog -sv [ glob ./hdl/**/*.sv ]
 # uncomment line below if verilog (.v) files present:
 # read_verilog  [ glob ./hdl/*.v ]
