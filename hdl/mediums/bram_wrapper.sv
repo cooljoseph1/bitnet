@@ -35,10 +35,9 @@ module bram_wrapper #(
   localparam BRAM_DEPTH = ADDRS * PIECES;
   localparam BRAM_ADDR_SIZE = $clog2(BRAM_DEPTH);
   localparam WIDTH = PIECES * BRAM_WIDTH;
-  localparam PIECE_ADDR_SIZE = $clog2(PIECES + 1);
+  localparam PIECE_ADDR_SIZE = $clog2(PIECES + 2);
   integer i;
 
-  logic [ADDR_SIZE-1:0] current_addr = 0;
   logic writing = 0; // Are we currently writing? If so, we will not be able to change our addr until finished.
   assign bram_we = writing;
   assign bram_regce = ~writing;
@@ -51,7 +50,6 @@ module bram_wrapper #(
 
   always_ff @(posedge clk_in) begin
     if (rst_in) begin
-      current_addr <= -1;
       x <= 0;
       piece_addr <= 0;
       bram_addr <= 0;
@@ -65,15 +63,13 @@ module bram_wrapper #(
         piece_addr <= 0;
         bram_addr <= PIECES * addr_in - 1;
         finished_all_pieces <= 0;
-        current_addr <= addr_in;
         finished_out <= 0;
       end else if (read_enable && finished_all_pieces) begin // default to always reading from addr_in
         // We just got assigned a new place to read from!!
         finished_all_pieces <= 0;
-        piece_addr <= 0;
-        bram_addr <= PIECES * addr_in;
+        piece_addr <= -1;
+        bram_addr <= PIECES * addr_in - 1;
         busy_reading <= 1;
-        current_addr <= addr_in;
         finished_out <= 0;
       end else if (!finished_all_pieces) begin
         if (writing) begin
@@ -96,11 +92,12 @@ module bram_wrapper #(
             busy_reading <= 0;
             // do nothing else--waste a clock cycle because the BRAM takes two clock cycles to read
           end else begin
-            if (piece_addr < PIECES) begin // read into x:
+            if (piece_addr != PIECES) begin // read into x:
               x <= {bram_dout, x[WIDTH-1:BRAM_WIDTH]};
               piece_addr <= piece_addr + 1;
               bram_addr <= bram_addr + 1;
               busy_reading <= 1;
+              data_out <= {bram_dout, x[WIDTH-1:BRAM_WIDTH]};
             end else begin
               x <= {bram_dout, x[WIDTH-1:BRAM_WIDTH]};
               // We have finished reading!
