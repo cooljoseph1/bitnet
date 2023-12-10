@@ -1,7 +1,3 @@
-`timescale 1ns / 1ps
-`default_nettype none; // prevents system from inferring an undeclared logic (good practice)
-
-
 module cpu #(
     parameter PROGRAM_LENGTH = 256,
     parameter DATA_LENGTH = 256,
@@ -98,7 +94,7 @@ module cpu #(
   );
 
   logic [W_SIZE-1:0] stoch_grad_out;
-  binterweave #(
+  stoch_grad #(
       .W_SIZE(W_SIZE)
   ) stoch_grad_block (
       .flip_weight_in(grad_register),
@@ -178,7 +174,7 @@ module cpu #(
             ready <= 0;
           end
           default: begin
-            instruction_pointer <= instruction_pointer + 1; // increment pointer
+            instruction_pointer <= instruction_pointer + 1; // increment pointer for everything else
           end
         endcase
 
@@ -292,10 +288,10 @@ module cpu #(
         case(instruction_in)
           SET_INFERENCE_TO_Y: begin
             inference_out <= y_register;
-            inference_valid <= 1;
+            inference_valid_out <= 1;
           end
           default: begin
-            inference_valid <= 0;
+            inference_valid_out <= 0;
           end
         endcase
 
@@ -379,5 +375,4 @@ module cpu #(
   end
 
 
-endmodule; // cpu
-`default_nettype wire
+endmodule // cpu
