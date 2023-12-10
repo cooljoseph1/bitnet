@@ -51,7 +51,7 @@ module top_level_tb();
     end
 
     // Send test data
-    for (int i=0; i<16; i=i+1)begin
+    for (int i=0; i<32; i=i+1)begin
       #250
       for (int j=0; j<8; j=j+1)begin
         #250

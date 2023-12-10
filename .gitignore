@@ -5,3 +5,4 @@
 *.out
 obj/
 python/data/
+**/*.pyc
