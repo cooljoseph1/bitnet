@@ -82,6 +82,8 @@ module comms #(
 
   // RECEIVING (LAPTOP -> FPGA)
   logic receive;
+  logic reception_error;
+  logic [$clog2(CLK_BAUD_RATIO * (DATA_PIECES * DATA_BRAM_WIDTH + WEIGHT_PIECES * WEIGHT_BRAM_WIDTH) * 2)-1:0] stuck_counter;
 
   logic piece_data;
   recv #(
@@ -90,7 +92,7 @@ module comms #(
     .FRAMES(DATA_BRAM_WIDTH / FRAME_SIZE)
   ) recv_data (
     .clk_in(clk_in),
-    .rst_in(rst_in),
+    .rst_in(rst_in || reception_error),
     .receive_in(receive && header[1:0]==DATA),
     .rx_in(rx_in),
     .data_out(data_register_out),
@@ -105,7 +107,7 @@ module comms #(
     .FRAMES(WEIGHT_BRAM_WIDTH / FRAME_SIZE)
   ) recv_weight (
     .clk_in(clk_in),
-    .rst_in(rst_in),
+    .rst_in(rst_in || reception_error),
     .receive_in(receive && header[1:0]==WEIGHT),
     .rx_in(rx_in),
     .data_out(weight_register_out),
@@ -119,7 +121,7 @@ module comms #(
     .FRAMES(OP_BRAM_WIDTH / FRAME_SIZE)
   ) recv_op (
     .clk_in(clk_in),
-    .rst_in(rst_in),
+    .rst_in(rst_in || reception_error),
     .receive_in(receive && header[1:0]==OP),
     .rx_in(rx_in),
     .data_out(op_register_out),
@@ -200,8 +202,10 @@ module comms #(
     receive <= 0;
     transmit <= 0;
 
-    if (rst_in)begin
+    if (rst_in || reception_error)begin
       busy_out <= 0;
+      reception_error <= 0;
+      stuck_counter <= 0;
     end else if (new_header)begin
       busy_out <= 1;
       receive <= !(header[2]);
@@ -212,9 +216,16 @@ module comms #(
         default: ;
       endcase
       piece_counter <= 0;
+      stuck_counter <= 0;
     end else if (busy_out)begin
+      if (!header[2])begin
+        stuck_counter <= stuck_counter + 1;
+      end
       case (header[2:0])
         {WRITE, DATA}: begin // Write to DATA
+          if (stuck_counter > CLK_BAUD_RATIO * DATA_PIECES * DATA_BRAM_WIDTH * 11 / 8)begin
+            reception_error <= 1;
+          end
           if (data_write_enable_out)begin
             data_write_enable_out <= 0;
             data_addr_out <= data_addr_out + 1;
@@ -230,6 +241,9 @@ module comms #(
           end
         end
         {WRITE, WEIGHT}: begin // Write to WEIGHT
+          if (stuck_counter > CLK_BAUD_RATIO * WEIGHT_PIECES * WEIGHT_BRAM_WIDTH * 11 / 8)begin
+            reception_error <= 1;
+          end
           if (weight_write_enable_out)begin
             weight_write_enable_out <= 0;
             weight_addr_out <= weight_addr_out + 1;
@@ -245,6 +259,9 @@ module comms #(
           end
         end
         {WRITE, OP}: begin // Write to OP
+          if (stuck_counter > CLK_BAUD_RATIO * OP_PIECES * OP_BRAM_WIDTH * 11 / 8)begin
+            reception_error <= 1;
+          end
           if (op_write_enable_out)begin
             op_write_enable_out <= 0;
             op_addr_out <= op_addr_out + 1;

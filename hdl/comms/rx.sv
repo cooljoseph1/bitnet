@@ -18,6 +18,7 @@ module rx #(
     new_data_out <= 0;
     if (rst_in)begin
       busy_out <= 0;
+      new_data_out <= 0;
       baud_checker <= 0;
       counter <= 0;
     end else if (baud_checker == 0) begin

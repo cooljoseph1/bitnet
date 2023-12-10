@@ -16,8 +16,7 @@ module recv #(
 
  localparam DATA_SIZE = FRAME_SIZE * FRAMES;
 
- logic [$clog2(CLK_BAUD_RATIO)-1:0] baud_checker;
- logic [$clog2(DATA_SIZE+1)-1:0] counter;
+ logic [$clog2(DATA_SIZE+1)-1:0] counter = 0;
  logic [FRAME_SIZE-1:0] frame;
  logic new_frame;
 
@@ -36,25 +35,26 @@ module recv #(
  integer i;
 
  always_ff @(posedge clk_in)begin
-  baud_checker <= baud_checker == CLK_BAUD_RATIO-1? 0 : baud_checker + 1;
   new_data_out <= 0;
   if (rst_in)begin
-   baud_checker <= 0;
    counter <= 0;
    busy_out <= 0;
+   new_data_out <= 0;
   end else if (!busy_out && receive_in)begin
     busy_out <= 1;
     counter <= 0;
-  end else if (counter == DATA_SIZE)begin
-      busy_out <= 0;
-      new_data_out <= 1;
-      counter <= 0;
-      data_out <= data;
-  end else if (busy_out && new_frame)begin
-    for (i=0; i<FRAME_SIZE; i = i+1)begin
-      data[counter+i] <= frame[i];
+  end else if (busy_out)begin
+    if (counter == DATA_SIZE)begin
+        busy_out <= 0;
+        new_data_out <= 1;
+        counter <= 0;
+        data_out <= data;
+    end else if (new_frame)begin
+      for (i=0; i<FRAME_SIZE; i = i+1)begin
+        data[counter+i] <= frame[i];
+      end
+      counter <= counter + FRAME_SIZE;
     end
-    counter <= counter + FRAME_SIZE;
   end
  end
 
