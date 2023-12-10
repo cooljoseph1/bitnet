@@ -29,22 +29,29 @@ module instruction_medium #(
   assign bram_regce = 1'b1;
   assign bram_din = {OP_SIZE{1'b0}};
 
+  assign instruction_out = bram_dout;
+
   logic finished = 1'b0;
   assign valid_out = finished;
 
   logic [ADDR_SIZE-1:0] read_addr = 0;
-  assign bram_addr = read_addr;
+  assign bram_addr = addr_in;
+
+  logic [1:0] busy = 0;
 
   always_ff @(posedge clk_in) begin
     if (rst_in) begin
       read_addr <= 0;
       finished <= 1'b0;
+      busy <= 0;
+    end else if (busy) begin
+      busy <= busy - 1;
+      finished <= (busy == 1);
     end else if (ready_in) begin
-      read_addr <= addr_in;
+      busy <= 2;
       finished <= 1'b0;
     end else begin
-      finished <= 1'b1;
-      instruction_out <= bram_dout;
+      finished <= 1'b0;
     end
   end
 

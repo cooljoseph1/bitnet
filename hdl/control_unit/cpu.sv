@@ -156,11 +156,7 @@ module cpu #(
       instruction <= SET_I_TO_0;
       ready <= 1;
     end else if (ready) begin
-      if (!instruction_valid_in) begin
-        instruction_ready_out <= 1'b0;
-      end else begin
-        instruction_ready_out <= 1'b1;
-      end
+      instruction_ready_out <= 1'b1;
       if (instruction_valid_in) begin
         instruction <= instruction_in;
 
@@ -326,6 +322,7 @@ module cpu #(
         endcase
       end
     end else begin // what do we do if we're not ready for a new operation?
+      instruction_ready_out <= 1'b0;
       // Only some operations take more than one clock cycle:
 
       case(instruction)
