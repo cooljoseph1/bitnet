@@ -83,6 +83,7 @@ module top_level #(
     .data_register_in(comm_data_register_out),
     .weight_register_in(comm_weight_register_out),
     .op_register_in(comm_op_register_out),
+    .inf_register_in(cpu_inference_out),
 
     .data_addr_out(comm_data_addr),
     .data_register_out(comm_data_register_in),

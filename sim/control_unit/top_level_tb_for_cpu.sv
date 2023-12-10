@@ -72,51 +72,18 @@ module top_level_tb_for_cpu();
     rst_in = 0;
     rx_in = 1;
 
-    // Send three messages
-
-    // for(int m=0; m<3; m=m+1)begin
-    
-    // Send op header
-    for (int i=0; i < 3; i=i+1)begin
-      #250
-      rx_in = 0;
-      for (int j=0; j<8; j=j+1)begin
-        #250
-        rx_in = (i==0 && j == 1);
-      end
-      #250
-      rx_in = 1;
-    end
-
-    // Send op D_INCREMENT
-    for (int i=0; i<1; i=i+1)begin
-      #250
-      for (int j=0; j<1; j=j+1)begin
-        #250
-        rx_in = 0;
-        for (int k=0; k<8; k=k+1)begin
-          #250
-          rx_in = D_INCREMENT[k];
-        end
-        #250
-        rx_in = 1;
-      end
-    end
-
-    /*
-    // Send data header
-    for (int i=0; i < 3; i=i+1)begin
-      #250
-      rx_in = 0;
-      for (int j=0; j<8; j=j+1)begin
-        #250
-        rx_in = 0;
-      end
-      #250
-      rx_in = 1;
-    end
-
     // Send test data
+    for (int i=0; i < 3; i=i+1)begin
+      #250
+      rx_in = 0;
+      for (int j=0; j<8; j=j+1)begin
+        #250
+        rx_in = 0;
+      end
+      #250
+      rx_in = 1;
+    end
+    
     for (int i=0; i<1; i=i+1)begin
       #250
       for (int j=0; j<8; j=j+1)begin
@@ -131,23 +98,104 @@ module top_level_tb_for_cpu();
       end
     end
 
-    #1000
+    #10000
 
-    // Read back what we just sent
+    
+    // Send ops
     for (int i=0; i < 3; i=i+1)begin
       #250
       rx_in = 0;
       for (int j=0; j<8; j=j+1)begin
         #250
-        rx_in = (i==0 && j==2);
+        rx_in = (i==0 && j == 1);
       end
       #250
       rx_in = 1;
     end
 
-    */
+    for (int i=0; i<1; i=i+1)begin
+      #250
+      for (int j=0; j<1; j=j+1)begin
+        #250
+        rx_in = 0;
+        for (int k=0; k<8; k=k+1)begin
+          #250
+          rx_in = SET_X_TO_VALUE_AT_D0[k];
+        end
+        #250
+        rx_in = 1;
+      end
+    end
 
-    #10000
+    #1000
+
+    for (int i=0; i < 3; i=i+1)begin
+      #250
+      rx_in = 0;
+      for (int j=0; j<8; j=j+1)begin
+        #250
+        rx_in = (i==0 && j == 1) || (i == 1 && j == 0);
+      end
+      #250
+      rx_in = 1;
+    end
+
+    for (int i=0; i<1; i=i+1)begin
+      #250
+      for (int j=0; j<1; j=j+1)begin
+        #250
+        rx_in = 0;
+        for (int k=0; k<8; k=k+1)begin
+          #250
+          rx_in = SET_Y_TO_X_OR_Y[k];
+        end
+        #250
+        rx_in = 1;
+      end
+    end
+
+    #1000
+
+    for (int i=0; i < 3; i=i+1)begin
+      #250
+      rx_in = 0;
+      for (int j=0; j<8; j=j+1)begin
+        #250
+        rx_in = (i==0 && j == 1) || (i == 1 && j == 1);
+      end
+      #250
+      rx_in = 1;
+    end
+
+    for (int i=0; i<1; i=i+1)begin
+      #250
+      for (int j=0; j<1; j=j+1)begin
+        #250
+        rx_in = 0;
+        for (int k=0; k<8; k=k+1)begin
+          #250
+          rx_in = SET_INFERENCE_TO_Y[k];
+        end
+        #250
+        rx_in = 1;
+      end
+    end
+
+    #1000
+
+    // Read from INFERENCE
+    for (int i=0; i < 3; i=i+1)begin
+      #250
+      rx_in = 0;
+      for (int j=0; j<8; j=j+1)begin
+        #250
+        rx_in = (i==0 && j<=2);
+      end
+      #250
+      rx_in = 1;
+    end
+
+    #20000
     // #400000
     // rst_in = 0;
     // end

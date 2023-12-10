@@ -175,7 +175,7 @@ module comms #(
     .busy_out(busy_transmitting_op)
   );
 
-  localparam INF_WIDTH = DATA_BRAM_WIDTH * DATA_PIECES;
+  localparam INF_WIDTH = DATA_BRAM_WIDTH * DATA_PIECES / 2;
   localparam INF_PIECES = 1;
 
   logic busy_transmitting_inf;

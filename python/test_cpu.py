@@ -16,7 +16,7 @@ print(comms.recv(ser, 'data', 0))
 
 
 # Set INFERENCE to the OR of all DATA X's.
-ops = [3, 4, 7, 23, 10]#, 3, 0]
+ops = [7, 23, 10]#, 3, 0]
 for i, op in enumerate(ops):
     comms.send(ser, 'op', i, bin(op)[2:].zfill(8))
 
