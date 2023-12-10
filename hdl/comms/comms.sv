@@ -193,8 +193,7 @@ module comms #(
     .busy_out(busy_transmitting_inf)
   );
 
-
-  logic [$clog2(WEIGHT_PIECES+1)-1:0] piece_counter; // Note: WEIGHT is widest type
+  logic [$clog2(DATA_PIECES+WEIGHT_PIECES+OP_PIECES)-1:0] piece_counter; // Note: WEIGHT is widest type
   logic grabbed_register;
   always_ff @(posedge clk_in)begin
     receive <= 0;
@@ -223,10 +222,10 @@ module comms #(
           if (new_data_piece)begin
             data_write_enable_out <= 1;
             piece_counter <= piece_counter + 1;
-            if (piece_counter == DATA_PIECES-1)begin
-              busy_out <= 0;
-            end else begin
+            if (piece_counter < DATA_PIECES-1)begin
               receive <= 1;
+            end else begin
+              busy_out <= 0;
             end
           end
         end

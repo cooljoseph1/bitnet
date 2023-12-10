@@ -11,7 +11,7 @@ for port, desc, hwid in sorted(ports):
 ser = serial.Serial('/dev/ttyUSB1', 4_000_000)
 
 # Seed DATA
-comms.send(ser, 'data', 0, '01'*1024)
+comms.send(ser, 'data', 0, '01'*32*32)
 print(comms.recv(ser, 'data', 0))
 
 
