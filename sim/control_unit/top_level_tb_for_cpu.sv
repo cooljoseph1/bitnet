@@ -82,7 +82,7 @@ module top_level_tb_for_cpu();
       rx_in = 0;
       for (int j=0; j<8; j=j+1)begin
         #250
-        rx_in = (i==0 && j < 2);
+        rx_in = (i==0 && j == 1);
       end
       #250
       rx_in = 1;
