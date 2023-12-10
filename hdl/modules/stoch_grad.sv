@@ -7,5 +7,6 @@ module stoch_grad #(
 
   // TODO: MAKE THIS MODULE.
   // This module takes in whether or not weights should be flipped and zeros out almost all of them
+  assign flip_weight_out = 0;
   
 endmodule // stoch_grad

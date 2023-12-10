@@ -10,5 +10,6 @@ module interweave #(
   );
 
   // TODO: MAKE THIS MODULE
+  assign y = x;
 
 endmodule // interweave
