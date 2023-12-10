@@ -231,7 +231,7 @@ module comms #(
           end
         end
         {WRITE, WEIGHT}: begin // Write to WEIGHT
-          if (weight_write_enable_out)begin
+          if (weight_write_enable_out && piece_counter < WEIGHT_PIECES-1)begin
             weight_addr_out <= weight_addr_out + 1;
           end
           if (new_weight_piece)begin
@@ -245,7 +245,7 @@ module comms #(
           end
         end
         {WRITE, OP}: begin // Write to OP
-          if (op_write_enable_out)begin
+          if (op_write_enable_out && piece_counter < OP_PIECES-1)begin
             op_addr_out <= op_addr_out + 1;
           end
           if (new_op_piece)begin
