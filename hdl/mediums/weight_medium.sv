@@ -11,6 +11,7 @@ module weight_medium #(
     input logic [ADDR_SIZE-1:0] addr_in,
     output wire [WIDTH-1:0] weight_out,
     input logic [WIDTH-1:0] weight_in,
+    input logic read_enable,
     input logic write_enable,
     output wire finished_out,
 
@@ -37,6 +38,7 @@ module weight_medium #(
     .addr_in(addr_in),
     .data_out(weight_out),
     .data_in(weight_in),
+    .read_enable(read_enable),
     .write_enable(write_enable),
     .finished_out(finished_out),
 

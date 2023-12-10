@@ -25,6 +25,7 @@ module bram_wrapper_tb();
   logic [ADDR_SIZE-1:0] addr_in;
   logic [WIDTH-1:0] data_out;
   logic [WIDTH-1:0] data_in;
+  logic read_enable;
   logic write_enable;
   logic finished_out;
 
@@ -71,6 +72,7 @@ module bram_wrapper_tb();
     .addr_in(addr_in),
     .data_out(data_out),
     .data_in(data_in),
+    .read_enable(read_enable),
     .write_enable(write_enable),
     .finished_out(finished_out)
   );
@@ -108,10 +110,16 @@ module bram_wrapper_tb();
 
     #1000
     addr_in = 0;
+    read_enable = 1;
+    #10
+    read_enable = 0;
 
     #1000
 
     addr_in = 12;
+    read_enable = 1;
+    #10
+    read_enable = 0;
 
     #1000
 

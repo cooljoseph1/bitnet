@@ -36,6 +36,7 @@ module data_medium #(
     .addr_in(addr_in),
     .data_out({x_out, y_out}),
     .data_in({X_WIDTH{2'b00}}),
+    .read_enable(1'b1),
     .write_enable(1'b0),
     .finished_out(finished_out),
 
