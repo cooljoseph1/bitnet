@@ -23,7 +23,7 @@ module top_level #(
 	output logic uart_txd
 	);
 
-  assign led = comm_data_addr;
+  assign led = cpu_inference_out;
 
   assign rgb0 = 0;
   assign rgb1 = 0;

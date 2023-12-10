@@ -12,12 +12,14 @@ ser = serial.Serial('/dev/ttyUSB1', 4_000_000)
 
 # Seed DATA
 comms.send(ser, 'data', 0, '01'*32*32)
+time.sleep(0.1)
 print(comms.recv(ser, 'data', 0))
 
 
 # Set INFERENCE to the OR of all DATA X's.
 ops = [7, 23, 10]#, 3, 0]
 for i, op in enumerate(ops):
+    time.sleep(0.1)
     comms.send(ser, 'op', i, bin(op)[2:].zfill(8))
 
 # Read INFERENCE

@@ -23,6 +23,7 @@ module rx #(
     end else if (!busy_out && !rx_in) begin // start busy_out
         busy_out <= 1;
         counter <= 0;
+        baud_checker <= 1;
     end else if (baud_checker == 0) begin
       if (busy_out) begin
         counter <= counter + 1;

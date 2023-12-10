@@ -216,45 +216,48 @@ module comms #(
     end else if (busy_out)begin
       case (header[2:0])
         {WRITE, DATA}: begin // Write to DATA
-          if (data_write_enable_out && piece_counter < DATA_PIECES-1)begin
+          if (data_write_enable_out)begin
+            data_write_enable_out <= 0;
             data_addr_out <= data_addr_out + 1;
+            if (piece_counter == DATA_PIECES)begin
+              busy_out <= 0;
+            end else begin
+              receive <= 1;
+            end
           end
           if (new_data_piece)begin
             data_write_enable_out <= 1;
             piece_counter <= piece_counter + 1;
-            if (piece_counter < DATA_PIECES-1)begin
-              receive <= 1;
-            end else begin
-              busy_out <= 0;
-            end
           end
         end
         {WRITE, WEIGHT}: begin // Write to WEIGHT
-          if (weight_write_enable_out && piece_counter < WEIGHT_PIECES-1)begin
+          if (weight_write_enable_out)begin
+            weight_write_enable_out <= 0;
             weight_addr_out <= weight_addr_out + 1;
+            if (piece_counter == WEIGHT_PIECES)begin
+              busy_out <= 0;
+            end else begin
+              receive <= 1;
+            end
           end
           if (new_weight_piece)begin
             weight_write_enable_out <= 1;
             piece_counter <= piece_counter + 1;
-            if (piece_counter == WEIGHT_PIECES-1)begin
+          end
+        end
+        {WRITE, OP}: begin // Write to OP
+          if (op_write_enable_out)begin
+            op_write_enable_out <= 0;
+            op_addr_out <= op_addr_out + 1;
+            if (piece_counter == OP_PIECES)begin
               busy_out <= 0;
             end else begin
               receive <= 1;
             end
-          end
-        end
-        {WRITE, OP}: begin // Write to OP
-          if (op_write_enable_out && piece_counter < OP_PIECES-1)begin
-            op_addr_out <= op_addr_out + 1;
           end
           if (new_op_piece)begin
             op_write_enable_out <= 1;
             piece_counter <= piece_counter + 1;
-            if (piece_counter == OP_PIECES-1)begin
-              busy_out <= 0;
-            end else begin
-              receive <= 1;
-            end
           end
         end
         {READ, DATA}: begin // Read from DATA

@@ -7,7 +7,7 @@ module top_level_tb_for_cpu();
   logic rx_in;
   logic tx_out;
 
-  logic [7:0] word = 8'h00;
+  logic [7:0] word = 8'h45;
 
   /* The instruction set in more readable terms */
   localparam SET_I_TO_0 = 0; // "I = 0"
@@ -75,6 +75,10 @@ module top_level_tb_for_cpu();
     rst_in = 0;
     rx_in = 1;
 
+    // Do this three times
+
+    for (int m=0; m<3; m=m+1)begin
+
     // Send test data
     for (int i=0; i < 3; i=i+1)begin
       #250
@@ -93,7 +97,7 @@ module top_level_tb_for_cpu();
         rx_in = 0;
         for (int k=0; k<8; k=k+1)begin
           #250
-          rx_in = word[k] + i;
+          rx_in = word[k] + i^m;
         end
         #250
         rx_in = 1;
@@ -101,6 +105,20 @@ module top_level_tb_for_cpu();
     end
 
     #40000
+
+    // Read from DATA
+    for (int i=0; i < 3; i=i+1)begin
+      #250
+      rx_in = 0;
+      for (int j=0; j<8; j=j+1)begin
+        #250
+        rx_in = (i==0 && j==2);
+      end
+      #250
+      rx_in = 1;
+    end
+
+    #800000
 
     
     // Send ops
@@ -193,8 +211,9 @@ module top_level_tb_for_cpu();
     end
 
     #400000
-    // rst_in = 0;
-    // end
+
+    rst_in = 0;
+    end
 
     $finish;
   end
