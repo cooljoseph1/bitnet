@@ -7,9 +7,9 @@ module instruction_medium #(
     input wire rst_in,
 
     /* communication with cpu */
-    input logic [ADDR_SIZE-1:0] addr_in,
-    output wire [OP_SIZE-1:0] instruction_out,
-    output wire valid_out,
+    input wire [ADDR_SIZE-1:0] addr_in,
+    output logic [OP_SIZE-1:0] instruction_out,
+    output logic valid_out,
 
     /* communication with the BRAM */
     input wire [OP_SIZE-1:0] bram_dout, // the dout from the BRAM
@@ -43,6 +43,7 @@ module instruction_medium #(
       finished <= 1'b0;
     end else begin
       finished <= 1'b1;
+      instruction_out <= bram_dout;
     end
   end
 

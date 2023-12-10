@@ -8,10 +8,10 @@ module data_medium #(
     input wire rst_in,
 
     /* communication with cpu */
-    input logic [ADDR_SIZE-1:0] addr_in, // tell the data medium what data to extract
-    output wire [X_WIDTH-1:0] x_out, // value of data at the above addr address
-    output wire [X_WIDTH-1:0] y_out, // value of data at the above addr address
-    output wire finished_out,
+    input wire [ADDR_SIZE-1:0] addr_in, // tell the data medium what data to extract
+    output logic [X_WIDTH-1:0] x_out, // value of data at the above addr address
+    output logic [X_WIDTH-1:0] y_out, // value of data at the above addr address
+    output logic finished_out,
 
     /* communication with the BRAM */
     input wire [BRAM_WIDTH-1:0] bram_dout, // the dout from the BRAM

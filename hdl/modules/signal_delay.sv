@@ -6,7 +6,7 @@ module signal_delay #(parameter N = 1)
     input wire clk_in,         // Clock input
     input wire rst_in,         // Reset input
     input wire in_signal,  // Input signal to be delayed
-    output wire out_signal // Delayed output signal
+    output logic out_signal // Delayed output signal
 );
 
     reg [N-1:0] shift_register; // Shift register to store delayed values

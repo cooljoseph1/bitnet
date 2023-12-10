@@ -8,12 +8,12 @@ module heap_medium #(
     input wire rst_in,
 
     /* communication with cpu */
-    input logic [ADDR_SIZE-1:0] addr_in,
-    output wire [WIDTH-1:0] data_out,
-    input logic [WIDTH-1:0] data_in,
-    input logic read_enable,
-    input logic write_enable,
-    output wire finished_out,
+    input wire [ADDR_SIZE-1:0] addr_in,
+    output logic [WIDTH-1:0] data_out,
+    input wire [WIDTH-1:0] data_in,
+    input wire read_enable,
+    input wire write_enable,
+    output logic finished_out,
 
     /* communication with the BRAM */
     input wire [BRAM_WIDTH-1:0] bram_dout, // the dout from the BRAM

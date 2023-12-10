@@ -16,12 +16,12 @@ module comms #(
   input wire rx_in,
 
   // Inputs from BRAM:
-  input logic [DATA_BRAM_WIDTH-1:0] data_register_in,
-  input logic [WEIGHT_BRAM_WIDTH-1:0] weight_register_in,
-  input logic [OP_BRAM_WIDTH-1:0] op_register_in,
+  input wire [DATA_BRAM_WIDTH-1:0] data_register_in,
+  input wire [WEIGHT_BRAM_WIDTH-1:0] weight_register_in,
+  input wire [OP_BRAM_WIDTH-1:0] op_register_in,
 
   // Input from inference register:
-  input logic [INF_WIDTH-1:0] inf_register_in,
+  input wire [INF_WIDTH-1:0] inf_register_in,
 
   // UART transmitter
   output logic tx_out,

@@ -3,7 +3,7 @@
  
 module top_level #(
   parameter DATA_ADDRS = 1024,
-	parameter DATA_SIZE = 1024,
+	parameter DATA_SIZE = 2048,
 	parameter DATA_BRAM_WIDTH = 64,
 	parameter WEIGHT_ADDRS = 128,
 	parameter WEIGHT_SIZE = 3072,
