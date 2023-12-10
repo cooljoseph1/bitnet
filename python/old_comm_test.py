@@ -33,8 +33,8 @@ ser.write(msg)
 msg = prepare_message('send', 'op', addr, bin(ord("Z"))[2:].zfill(8))
 ser.write(msg)
 
-msg = prepare_message('recv', 'op', addr)
+msg = prepare_message('recv', 'data', addr)
 ser.write(msg)
-print(ser.read(1))
+print(ser.read(128))
 
 ser.close()
