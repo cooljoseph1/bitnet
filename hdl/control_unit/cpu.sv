@@ -152,8 +152,8 @@ module cpu #(
       grad_register <= 0;
       trit <= 0;
 
-      instruction = SET_I_TO_0;
-      ready = 1;
+      instruction <= SET_I_TO_0;
+      ready <= 1;
     end else if (ready) begin
       if (instruction_valid_in) begin
         instruction <= instruction_in;
