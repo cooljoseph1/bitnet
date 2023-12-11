@@ -46,7 +46,10 @@ module comms #(
   output logic [$clog2(OP_DEPTH)-1:0] op_addr_out,
   output logic [OP_BRAM_WIDTH-1:0] op_register_out,
   output logic op_write_enable_out,
-  output logic op_read_enable_out
+  output logic op_read_enable_out,
+
+  // debugging
+  output logic [15:0] debug_out
  );
 
   localparam FRAME_SIZE = 8; // UART sends one byte in each frame
@@ -59,6 +62,8 @@ module comms #(
   localparam WEIGHT = 2'b01;
   localparam OP = 2'b10;
   localparam INF = 2'b11;
+
+  assign debug_out = {piece_counter, grabbed_register, reception_error, transmit, receive, header[2:0], busy_out};
   
   // GET HEADER
   localparam TYPE_SIZE = 3;
@@ -195,8 +200,7 @@ module comms #(
     .busy_out(busy_transmitting_inf)
   );
 
-
-  logic [$clog2(WEIGHT_PIECES+DATA_PIECES)-1:0] piece_counter; // Note: WEIGHT is widest type
+  logic [$clog2(WEIGHT_PIECES+DATA_PIECES+OP_PIECES)-1:0] piece_counter;
   logic grabbed_register;
   always_ff @(posedge clk_in)begin
     receive <= 0;
@@ -206,7 +210,9 @@ module comms #(
       busy_out <= 0;
       reception_error <= 0;
       stuck_counter <= 0;
-    end else if (new_header)begin
+      grabbed_register <= 0;
+      piece_counter <= 0;
+    end else if (!busy_out && new_header)begin
       busy_out <= 1;
       receive <= !(header[2]);
       case (header[1:0])
@@ -231,11 +237,11 @@ module comms #(
             data_addr_out <= data_addr_out + 1;
             if (piece_counter == DATA_PIECES)begin
               busy_out <= 0;
+              piece_counter <= 0;
             end else begin
               receive <= 1;
             end
-          end
-          if (piece_data)begin
+          end else if (piece_data)begin
             data_write_enable_out <= 1;
             piece_counter <= piece_counter + 1;
           end
@@ -249,11 +255,12 @@ module comms #(
             weight_addr_out <= weight_addr_out + 1;
             if (piece_counter == WEIGHT_PIECES)begin
               busy_out <= 0;
+              piece_counter <= 0;
             end else begin
               receive <= 1;
             end
           end
-          if (piece_weight)begin
+          else if (piece_weight)begin
             weight_write_enable_out <= 1;
             piece_counter <= piece_counter + 1;
           end
@@ -267,11 +274,12 @@ module comms #(
             op_addr_out <= op_addr_out + 1;
             if (piece_counter == OP_PIECES)begin
               busy_out <= 0;
+              piece_counter <= 0;
             end else begin
               receive <= 1;
             end
           end
-          if (piece_op)begin
+          else if (piece_op)begin
             op_write_enable_out <= 1;
             piece_counter <= piece_counter + 1;
           end
@@ -285,6 +293,7 @@ module comms #(
               data_addr_out <= data_addr_out + 1;
             end else if(piece_counter == DATA_PIECES) begin
               busy_out <= 0;
+              piece_counter <= 0;
             end else begin
               data_read_enable_out <= 1;
               grabbed_register <= 1;
@@ -301,6 +310,7 @@ module comms #(
               weight_addr_out <= weight_addr_out + 1;
             end else if(piece_counter == WEIGHT_PIECES) begin
               busy_out <= 0;
+              piece_counter <= 0;
             end else begin
               weight_read_enable_out <= 1;
               grabbed_register <= 1;
@@ -317,6 +327,7 @@ module comms #(
               op_addr_out <= op_addr_out + 1;
             end else if(piece_counter == OP_PIECES) begin
               busy_out <= 0;
+              piece_counter <= 0;
             end else begin
               op_read_enable_out <= 1;
               grabbed_register <= 1;
@@ -334,7 +345,7 @@ module comms #(
             end
           end
         end
-        default:;
+        default: busy_out <= 0;
       endcase
     end
   end

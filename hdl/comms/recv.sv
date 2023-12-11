@@ -39,7 +39,6 @@ module recv #(
   if (rst_in)begin
    counter <= 0;
    busy_out <= 0;
-   new_data_out <= 0;
   end else if (!busy_out && receive_in)begin
     busy_out <= 1;
     counter <= 0;

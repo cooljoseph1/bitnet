@@ -1,0 +1,18 @@
+cores:
+  data:
+    type: block_memory
+    width: 64
+    depth: 16384
+  weight:
+    type: block_memory
+    width: 64
+    depth: 6144
+  op:
+    type: block_memory
+    width: 8
+    depth: 1024
+
+uart:
+  port: "auto"
+  baudrate: 4_000_000
+  clock_freq: 100_000_000

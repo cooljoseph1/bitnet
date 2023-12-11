@@ -1,4 +1,5 @@
 import os
+import time
 from bitarray import bitarray
 
 file_dir = os.path.dirname(os.path.abspath(__file__))
@@ -73,9 +74,28 @@ def prepare_op(op):
         op = instruction_set[op]
     return bin(op)[2:].zfill(8)
 
-def send(ser, loc, addr, bits):
+def send(ser, loc, addr, bits, error_check=True):
+    bits = bitarray(bits or '')
     msg = prepare_message('send', loc, addr, bits)
     ser.write(msg)
+    ser.flush()
+    # print(ser.in_waiting)
+    x = ser.out_waiting
+    if x > 0:
+        print(x)
+        raise
+
+    if error_check:
+        ser.reset_input_buffer()
+        b = recv(ser, loc, addr)
+        while b != bits:
+            ser.reset_input_buffer()
+            # print(ser.in_waiting)
+            # print(len(b), len(bits), b, bits)
+            time.sleep(0.1)
+            ser.write(msg)
+            b = recv(ser, loc, addr)
+
 
 def recv(ser, loc, addr):
     msg = prepare_message('recv', loc, addr)

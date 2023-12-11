@@ -8,6 +8,7 @@ module top_level_tb();
   logic tx_out;
 
   logic [7:0] word = 8'h36;
+  logic [15:0] debug;
 
   top_level #(
     .DATA_ADDRS(2)
@@ -15,7 +16,8 @@ module top_level_tb();
 	.clk_100mhz(clk_in),
     .sys_rst(rst_in),
     .uart_rxd(rx_in),
-    .uart_txd(tx_out)
+    .uart_txd(tx_out),
+    .led(debug)
   );
 
   always begin
@@ -36,7 +38,7 @@ module top_level_tb();
 
     // Send three messages
 
-    for(int m=0; m<3; m=m+1)begin
+    for(int m=0; m<256; m=m+1)begin
     
     // Send header
     for (int i=0; i < 3; i=i+1)begin
@@ -44,28 +46,27 @@ module top_level_tb();
       rx_in = 0;
       for (int j=0; j<8; j=j+1)begin
         #250
-        rx_in = 0;
+        rx_in = 0 || (i>0 && m[j]);
       end
       #250
       rx_in = 1;
     end
 
     // Send test data
-    for (int i=0; i<32; i=i+1)begin
-      #250
+    for (int i=0; i<32-(m%2); i=i+1)begin // -m&1 -> lose a packet on the second run through
       for (int j=0; j<8; j=j+1)begin
         #250
         rx_in = 0;
         for (int k=0; k<8; k=k+1)begin
           #250
-          rx_in = word[k] + i;
+          rx_in = |(m & (1 << k));//word[k] + i + (m>>1);
         end
         #250
         rx_in = 1;
       end
     end
 
-    #1000
+    #(100000 * (1 + (m%2)))
 
     // Read back what we just sent
     // Send 8'b0 three times
@@ -74,12 +75,12 @@ module top_level_tb();
       rx_in = 0;
       for (int j=0; j<8; j=j+1)begin
         #250
-        rx_in = (i==0 && j==2) || (i==1 && j==0 && m==1);
+        rx_in = (i==0 && j==2) || (i>0 && m[j]);// || (i==1 && j==0 && m==1);
       end
       #250
       rx_in = 1;
     end
-    #400000
+    #800000
     rst_in = 0;
     end
 

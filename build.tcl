@@ -19,6 +19,7 @@ if {[llength $files] != 0} {
 read_verilog -sv [ glob ./hdl/*.sv ]
 read_verilog -sv [ glob ./hdl/comms/*.sv ]
 read_verilog -sv [ glob ./hdl/control_unit/*.sv ]
+read_verilog -sv [ glob ./hdl/display/*.sv ]
 read_verilog -sv [ glob ./hdl/mediums/*.sv ]
 read_verilog -sv [ glob ./hdl/modules/*.sv ]
 # read_verilog -sv [ glob ./hdl/**/*.sv ]

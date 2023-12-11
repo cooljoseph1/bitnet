@@ -17,13 +17,33 @@ module top_level #(
 	input wire sys_rst,
 	input wire uart_rxd,
 
+  output logic [3:0] ss0_an,//anode control for upper four digits of seven-seg display
+  output logic [3:0] ss1_an,//anode control for lower four digits of seven-seg display
+  output logic [6:0] ss0_c, //cathode controls for the segments of upper four digits
+  output logic [6:0] ss1_c, //cathode controls for the segments of lower four digits
+
   output logic [15:0] led,
 	output logic [2:0] rgb0, //rgb led
 	output logic [2:0] rgb1, //rgb led
 	output logic uart_txd
 	);
 
-  assign led = cpu_inference_out;
+  // Display different things to help with debugging
+
+  assign led = comm_debug;
+  logic [15:0] comm_debug;
+  // assign led = instruction_cpu_addr;
+  // assign led = data_cpu_addr;
+  seven_segment_controller left_digits (.clk_in(clk_100mhz),
+                                .rst_in(sys_rst),
+                                .val_in(cpu_inference_out),
+                                .cat_out(ss0_c),
+                                .an_out({ss0_an, ss1_an}));
+  // seven_segment_controller right_digits (.clk_in(clk_100mhz),
+  //                               .rst_in(sys_rst),
+  //                               .val_in(instruction),
+  //                               .cat_out(ss1_c),
+  //                               .an_out({ss0_an, 4'b0}));
 
   assign rgb0 = 0;
   assign rgb1 = 0;
@@ -100,7 +120,9 @@ module top_level #(
     .op_write_enable_out(comm_op_we),
     .op_read_enable_out(comm_op_re),
 
-    .tx_out(uart_txd)
+    .tx_out(uart_txd),
+    
+    .debug_out(comm_debug)
   );
 
 

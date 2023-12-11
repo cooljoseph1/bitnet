@@ -7,7 +7,7 @@ module top_level_tb_for_cpu();
   logic rx_in;
   logic tx_out;
 
-  logic [7:0] word = 8'h45;
+  logic [7:0] word = 8'hff;
 
   /* The instruction set in more readable terms */
   localparam SET_I_TO_0 = 0; // "I = 0"
@@ -42,7 +42,7 @@ module top_level_tb_for_cpu();
   localparam DATA_BRAM_WIDTH=64;
 
   top_level #(
-    .DATA_ADDRS(2),
+    .DATA_ADDRS(32),
 	  .DATA_SIZE(DATA_SIZE),
 	  .DATA_BRAM_WIDTH(DATA_BRAM_WIDTH),
 	  .WEIGHT_ADDRS(DATA_SIZE/DATA_BRAM_WIDTH),
@@ -97,7 +97,7 @@ module top_level_tb_for_cpu();
         rx_in = 0;
         for (int k=0; k<8; k=k+1)begin
           #250
-          rx_in = word[k] + i^m;
+          rx_in = word[k] + i*m;
         end
         #250
         rx_in = 1;
@@ -146,9 +146,10 @@ module top_level_tb_for_cpu();
       end
     end
 
-    #1000
+    #10000
 
     for (int i=0; i < 3; i=i+1)begin
+      #250
       rx_in = 0;
       for (int j=0; j<8; j=j+1)begin
         #250
@@ -171,9 +172,10 @@ module top_level_tb_for_cpu();
       end
     end
 
-    #1000
+    #10000
 
     for (int i=0; i < 3; i=i+1)begin
+      #250
       rx_in = 0;
       for (int j=0; j<8; j=j+1)begin
         #250

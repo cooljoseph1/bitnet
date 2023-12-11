@@ -24,7 +24,7 @@ module fc #(
     output logic [N-1:0] bout
   );
 
-  localparam NUM_LAYERS = clog3(N);
+  localparam NUM_LAYERS = 2;//$clog3(N);
   logic [NUM_LAYERS:0][N-1:0] fh ; // not NUM_LAYERS-1. Makes indexing easier.
   logic [NUM_LAYERS:0][N-1:0] bh;
   assign fh[0] = fin;

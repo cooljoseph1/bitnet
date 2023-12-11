@@ -15,7 +15,6 @@ module trans #(
 
  localparam DATA_SIZE = FRAME_SIZE * FRAMES;
 
- logic [$clog2(CLK_BAUD_RATIO)-1:0] baud_checker;
  logic [$clog2(DATA_SIZE+1)-1:0] counter;
  logic [FRAME_SIZE-1:0] frame;
  logic new_frame;
@@ -36,10 +35,8 @@ module trans #(
  integer i;
 
  always_ff @(posedge clk_in)begin
-  baud_checker <= baud_checker == CLK_BAUD_RATIO-1? 0 : baud_checker + 1;
   new_frame <= 0;
   if (rst_in)begin
-   baud_checker <= 0;
    counter <= 0;
    busy_out <= 0;
   end else if (new_data_in && !busy_out)begin
