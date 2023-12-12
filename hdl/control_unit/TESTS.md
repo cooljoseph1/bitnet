@@ -1,7 +1,7 @@
 # Which instructions have been tested?
 
 - [X] `SET_I_TO_0`
-- [ ] `SET_TRIT_TO_NEXT_VALUE`
+- [X] `SET_TRIT_TO_NEXT_VALUE`
 - [X] `SET_H_TO_NEXT_VALUE`
 - [X] `D_INCREMENT` // Seemed to fail
 - [X] `D_DECREMENT`
@@ -24,6 +24,6 @@
 - [x] `SET_Y_TO_X_AND_Y`
 - [x] `SET_X_TO_X_OR_Y`
 - [x] `SET_Y_TO_X_OR_Y`
-- [ ] `INTERWEAVE`
+- [X] `INTERWEAVE`
 - [ ] `BACKPROP`
 - [ ] `STOCH_GRAD`
