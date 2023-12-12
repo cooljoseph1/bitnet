@@ -1,10 +1,10 @@
 # Which instructions have been tested?
 
-- [ ] `SET_I_TO_0`
+- [X] `SET_I_TO_0`
 - [ ] `SET_TRIT_TO_NEXT_VALUE`
 - [ ] `SET_H_TO_NEXT_VALUE`
-- [ ] `D_INCREMENT` // Seemed to fail
-- [x] `D_DECREMENT`
+- [X] `D_INCREMENT` // Seemed to fail
+- [X] `D_DECREMENT`
 - [ ] `A_INCREMENT`
 - [ ] `A_DECREMENT`
 - [x] `SET_X_TO_VALUE_AT_D0`

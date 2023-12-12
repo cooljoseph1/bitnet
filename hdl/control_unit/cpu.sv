@@ -297,6 +297,7 @@ module cpu #(
           SET_INFERENCE_TO_Y: begin
             inference_out <= y_register;
             inference_valid_out <= 1;
+            ready <= 1;
           end
           default: begin
             inference_valid_out <= 0;
