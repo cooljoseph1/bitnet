@@ -5,14 +5,14 @@
 - [X] `SET_H_TO_NEXT_VALUE`
 - [X] `D_INCREMENT` // Seemed to fail
 - [X] `D_DECREMENT`
-- [ ] `A_INCREMENT`
-- [ ] `A_DECREMENT`
+- [X] `A_INCREMENT`
+- [X] `A_DECREMENT`
 - [x] `SET_X_TO_VALUE_AT_D0`
 - [x] `SET_Y_TO_VALUE_AT_D1`
 - [x] `SET_XY_TO_VALUE_AT_D`
 - [x] `SET_INFERENCE_TO_Y`
-- [ ] `SET_W_TO_VALUE_AT_A`
-- [ ] `SET_VALUE_AT_A_TO_W`
+- [X] `SET_W_TO_VALUE_AT_A`
+- [X] `SET_VALUE_AT_A_TO_W`
 - [X] `SET_X_TO_VALUE_AT_H`
 - [X] `SET_VALUE_AT_H_TO_X`
 - [x] `SWAP_XY`

@@ -11,7 +11,7 @@ for i in range(80):
     print(i)
     x = bitarray(format(i + 100, 'b').zfill(1024))
     y = bitarray(format(i + 27, 'b').zfill(1024))
-    interface.send(ser, 'data', i, y + x)
+    interface.send(ser, 'weight', i, x + x + y)
 # x = bitarray('0011' * 256)
 # y = bitarray('0101' * 256)
 # interface.send(ser, 'data', 0, zero*2)
@@ -19,11 +19,11 @@ for i in range(80):
 # print(interface.recv(ser, 'data', 3))
 
 ops = [
-    "SET_XY_TO_VALUE_AT_D",
-    "SET_TRIT_TO_NEXT_VALUE",
-    7,
-    "SET_TRIT_TO_NEXT_VALUE",
-    11,
+    "SET_X_TO_VALUE_AT_D0",
+    "SET_W_TO_VALUE_AT_A",
+    "A_INCREMENT",
+    "A_DECREMENT",
+    "SET_VALUE_AT_A_TO_W",
     "INTERWEAVE",
     "SET_Y_TO_X",
     "SET_INFERENCE_TO_Y",

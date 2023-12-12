@@ -307,11 +307,11 @@ module cpu #(
         /* The most important instructions!!! These are the neural network operations */
         case(instruction_in)
           INTERWEAVE: begin
-            y_register <= interweave_y;
+            x_register <= interweave_y;
             ready <= 1;
           end
           BACKPROP: begin
-            x_register <= binterweave_x;
+            y_register <= binterweave_x;
             grad_register <= binterweave_grad;
             ready <= 1;
           end
