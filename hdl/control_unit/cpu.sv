@@ -6,7 +6,8 @@ module cpu #(
     parameter INSTRUCTION_SIZE = 16,
     parameter X_SIZE = 1024,
     parameter W_SIZE = 1024,
-    parameter TRIT_SIZE = 4
+    parameter TRIT_SIZE = 4,
+    parameter NEG_LOG_LEARNING_RATE = 8
   ) (
     /* clock  and reset */
     input wire clk_in,
@@ -97,8 +98,11 @@ module cpu #(
 
   logic [W_SIZE-1:0] stoch_grad_out;
   stoch_grad #(
-      .W_SIZE(W_SIZE)
+      .W_SIZE(W_SIZE),
+      .NEG_LOG_LEARNING_RATE(NEG_LOG_LEARNING_RATE)
   ) stoch_grad_block (
+      .clk_in(clk_in),
+      .rst_in(rst_in),
       .flip_weight_in(grad_register),
       .flip_weight_out(stoch_grad_out)
   );
