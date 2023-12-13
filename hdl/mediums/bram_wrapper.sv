@@ -109,6 +109,7 @@ module bram_wrapper #(
         end
       end else begin
         // do nothing else--we are done writing and done reading and didn't receive a new pointer to read from
+        finished_out <= 0;
       end
     end
   end

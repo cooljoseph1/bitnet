@@ -11,7 +11,7 @@ module binterweave #(
   );
 
   // TODO: MAKE THIS MODULE
-  assign x = y;
-  assign grad = w;
+  assign x = (y ^ trit);
+  assign grad = (w ^ trit ^ y);
 
 endmodule // binterweave
