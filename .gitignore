@@ -5,4 +5,4 @@
 *.out
 obj/
 python/data/
-python/__pycache__/*.pyc
+*.pyc
