@@ -14,16 +14,16 @@ def binterweave(x, maj, w, trit, grad):
 
 def binterstitial(xx, ww, trit, m, grad):
     ww_grad = []
-    y = [gi*(m-1) for gi in grad]
+    y = [1 for gi in grad]
     for i in range(m)[::-1]:
         x, maj, w = xx[2*i], xx[2*i+1], ww[i]
         x_grad, w_grad = binterweave(x, maj, w, trit, grad)
-        y = [yi + z for yi, z in zip(y, x_grad)]
+        y = [yi & z for yi, z in zip(y, x_grad)]
         ww_grad.append(w_grad)
     ww_grad = ww_grad[::-1]
     # Strangely trains about as well if we just punt the gradients backwards...
     # i.e. comment out the below line
-    grad = [yi >= m for gi, yi in zip(grad, y)]
+    grad = [gi & (1 ^ yi) for gi, yi in zip(grad, y)]
     return grad, ww_grad
 
 def bconv(xxx, www, m, n, grad):
