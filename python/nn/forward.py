@@ -5,9 +5,9 @@ def predecessor(i, k, s):
     return (i - k) % s
 
 def adj(i, j, k, s):
-    if j == 0:
+    if j%3 == 0:
         return i
-    elif j == 1:
+    elif j%3 == 1:
         return successor(i, k, s)
     else:
         return predecessor(i, k, s)
