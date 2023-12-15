@@ -17,7 +17,7 @@ Header bits:
         - <span style="color:magenta">00</span> - DATA BRAM.
         - <span style="color:magenta">01</span> - WEIGHT BRAM.
         - <span style="color:magenta">10</span> - OP BRAM.
-        - <span style="color:magenta">10</span> - INF REGISTER. This can only be read from.
+        - <span style="color:magenta">11</span> - INF REGISTER. This can only be read from.
     - The <span style="color:cyan">next bit</span> tells whether to receive (0) or send (1) data, from the persepctive of the FPGA.
 - BYTES 2-3:
     - The <span style="color:green">next 16 bits</span> are the address.

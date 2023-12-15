@@ -26,10 +26,10 @@ module stoch_grad #(
   assign middle_random = random[14:2];
 
   always_comb begin
-    for (i=0; i<W_SIZE; i = i+1)begin
+    for (i=0; i<W_SIZE; i = i+1)begin 
       k = 13'b1_1111_1111_1111;
       for(j=0; j < NEG_LOG_LEARNING_RATE; j = j+1)begin
-        k ^= 13'b1 << ((i * i * i * 17 + i * j * 19) % 13);
+        k ^= 13'b1 << ((3 * i * i * 17 + i * j * 19) % 13);
       end
       flip_weight_out[i] = flip_weight_in[i] & (&(middle_random | k));
     end

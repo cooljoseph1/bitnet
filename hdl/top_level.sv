@@ -3,10 +3,10 @@
  
 module top_level #(
   parameter DATA_ADDRS = 512,
-	parameter DATA_SIZE = 2048,
+	parameter DATA_SIZE = 2 * 128,
 	parameter DATA_BRAM_WIDTH = 64,
 	parameter WEIGHT_ADDRS = 128,
-	parameter WEIGHT_SIZE = 3072,
+	parameter WEIGHT_SIZE = 3 * 128,
 	parameter WEIGHT_BRAM_WIDTH = 64,
 	parameter HEAP_ADDRS = 128,
   parameter OP_ADDRS = 1024,

@@ -28,28 +28,38 @@ def update(w, gw, lr=1e-1):
     return w ^ gw if random.random() < lr else w
 
 m, n, layers = 4, 6, 3
-wwww_init = [[[[random.randint(0, 1) for r in range(3 ** (n+1))] for s in range(m)] for t in range(n)]for l in range(layers)]
+wwww = [[[[random.randint(0, 1) for r in range(3 ** (n+1))] for s in range(m)] for t in range(n)]for l in range(layers)]
 
-for lr in [1e-1]:
-    loss = []
-    wwww = deepcopy(wwww_init)
-    iters = 100
-    for i in range(iters):
-        x, y, l = sample()
-        o, xxxx = network(x, wwww, m, n, layers)
-        grad = [oi ^ yi for oi, yi in zip(o, y)]
-        loss.append(sum(grad))
-        print(i, loss[-1])
 
-        p = [sum(o[72*i:72*(i+1)]) for i in range(10)]
-        p = [pi / sum(p) for pi in p]
+fig, ax1 = plt.subplots(figsize=(8, 5))
 
-        gx, gwwww = bnetwork(xxxx, wwww, m, n, layers, grad)
-        wwww = update(wwww, gwwww, lr)
+ax1.set_xlabel("Training Iteration")
+ax1.set_ylabel("Incorrect Bits")
+ax2 = ax1.twinx()
+ax2.set_ylabel("Prediction Accuracy")
 
-    plt.plot(range(iters), loss, label=f"lr={lr:.1f}")
+lr = 1e-1
+loss = []
+acc = []
+iters = 100
+for i in range(iters):
+    x, y, l = sample()
+    o, xxxx = network(x, wwww, m, n, layers)
+    grad = [oi ^ yi for oi, yi in zip(o, y)]
+    loss.append(sum(grad))
 
-plt.legend()
-plt.xlabel("Training Iteration")
-plt.ylabel("Incorrect Bits")
+    p = [sum(o[72*i:72*(i+1)]) for i in range(10)]
+    p = [pi / sum(p) for pi in p]
+    acc.append(p[l])
+    print(i, loss[-1], acc[-1])
+
+    gx, gwwww = bnetwork(xxxx, wwww, m, n, layers, grad)
+    wwww = update(wwww, gwwww, lr)
+
+ax1.plot(range(iters), loss, label=f"Incorrect Bits", color="red")
+ax2.plot(range(iters), acc, label=f"Accuracy", color="blue")
+line1, label1 = ax1.get_legend_handles_labels()
+line2, label2 = ax2.get_legend_handles_labels()
+plt.legend(line1 + line2, label1 + label2, loc="best")
+plt.tight_layout()
 plt.show()

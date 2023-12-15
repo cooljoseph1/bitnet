@@ -40,10 +40,10 @@ loc_bits = {
     }
 
 loc_size = {
-    'data': 2048,
-    'weight': 3072,
+    'data': 2 * 128,
+    'weight': 3 * 128,
     'op': 8,
-    'inf': 1024
+    'inf': 128
     }
 
 def prepare_message(io, loc, addr, bits=None):
@@ -90,9 +90,6 @@ def send(ser, loc, addr, bits, error_check=True):
         b = recv(ser, loc, addr)
         while b != bits:
             ser.reset_input_buffer()
-            # print(ser.in_waiting)
-            # print(len(b), len(bits), b, bits)
-            time.sleep(0.1)
             ser.write(msg)
             b = recv(ser, loc, addr)
 

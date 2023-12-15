@@ -89,11 +89,12 @@ module cpu #(
       .W_SIZE(W_SIZE),
       .TRIT_SIZE(TRIT_SIZE)
     ) binterweave_block (
-      .y(y_register),
+      .x(x_register),
       .w(w_register),
+      .dy(y_register),
       .trit(trit),
-      .x(binterweave_x),
-      .grad(binterweave_grad)
+      .dx(binterweave_x),
+      .dw(binterweave_grad)
   );
 
   logic [W_SIZE-1:0] stoch_grad_out;

@@ -18,7 +18,7 @@ def update(w, gw, lr=1e-1):
         return [update(wi, gwi, lr) for wi, gwi in zip(w, gw)]
     return w ^ gw if random.random() < lr else w
 
-for lr in [1e-0, 5e-1, 2e-1, 1e-1]:
+for lr in [1e-1]:
     loss = []
     wwww = deepcopy(wwww_init)
     iters = 50
@@ -26,6 +26,7 @@ for lr in [1e-0, 5e-1, 2e-1, 1e-1]:
         o, xxxx = network(x, wwww, m, n, layers)
         grad = [oi ^ yi for oi, yi in zip(o, y)]
         loss.append(sum(grad))
+        print("LOSS =", loss)
 
         gx, gwwww = bnetwork(xxxx, wwww, m, n, layers, grad)
         wwww = update(wwww, gwwww, lr)
