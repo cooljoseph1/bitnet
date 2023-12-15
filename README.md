@@ -8,4 +8,4 @@ Simulations are in `sim/`. Examples of communicating and running neural networks
 There's a separate `brainfuck` branch.
 
 # More information?
-We'd recommend reading our `Final Paper.pdf`.
+We'd recommend reading our `Final Report.pdf`.
