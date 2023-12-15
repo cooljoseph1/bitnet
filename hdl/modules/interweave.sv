@@ -10,6 +10,7 @@ module interweave #(
   );
 
   // TODO: MAKE THIS MODULE
-  assign y = (x ^ w[X_SIZE-1:0] ^ trit);
+  assign y = x;
+  // assign y = (x ^ w[X_SIZE-1:0] ^ trit);
 
 endmodule // interweave

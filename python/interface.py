@@ -40,10 +40,10 @@ loc_bits = {
     }
 
 loc_size = {
-    'data': 2048,
-    'weight': 3072,
+    'data': 1024,
+    'weight': 16,
     'op': 8,
-    'inf': 1024
+    'inf': 512
     }
 
 def prepare_message(io, loc, addr, bits=None):
@@ -84,6 +84,7 @@ def send(ser, loc, addr, bits, error_check=True):
     if x > 0:
         print(x)
         raise
+
 
     if error_check:
         ser.reset_input_buffer()

@@ -1,11 +1,11 @@
 module cpu #(
     parameter PROGRAM_LENGTH = 256,
-    parameter DATA_LENGTH = 256,
-    parameter WEIGHT_LENGTH = 256,
-    parameter HEAP_LENGTH = 256,
+    parameter DATA_LENGTH = 2,
+    parameter WEIGHT_LENGTH = 2,
+    parameter HEAP_LENGTH = 8192,
     parameter INSTRUCTION_SIZE = 16,
-    parameter X_SIZE = 1024,
-    parameter W_SIZE = 1024,
+    parameter X_SIZE = 512,
+    parameter W_SIZE = 8,
     parameter TRIT_SIZE = 4,
     parameter NEG_LOG_LEARNING_RATE = 8
   ) (
@@ -136,6 +136,11 @@ module cpu #(
   localparam INTERWEAVE = 24; // "INTERWEAVE"
   localparam BACKPROP = 25; // "BACKPROP"
   localparam STOCH_GRAD = 26; // "STOCH GRAD"
+  localparam JUMP_IF_0 = 27;
+  localparam JUMP_IF_NOT_0 = 28;
+  localparam OUTPUT_W = 29;
+  localparam W_INCREMENT = 30;
+  localparam W_DECREMENT = 31;
   /* ----- PYTHON PARSING ENDS HERE ----- */
 
   /* current instruction we are working on */
@@ -178,6 +183,24 @@ module cpu #(
             instruction_pointer <= instruction_pointer + 1;
             ready <= 0;
           end
+          JUMP_IF_0: begin
+            if (|w_register) begin
+              instruction_pointer <= instruction_pointer + 2;
+              ready <= 1;
+            end else begin
+              instruction_pointer <= instruction_pointer + 1;
+              ready <= 0;
+            end
+          end
+          JUMP_IF_NOT_0: begin
+            if (&(~w_register)) begin
+              instruction_pointer <= instruction_pointer + 2;
+              ready <= 1;
+            end else begin
+              instruction_pointer <= instruction_pointer + 1;
+              ready <= 0;
+            end
+          end
           SET_H_TO_NEXT_VALUE: begin
             instruction_pointer <= instruction_pointer + 1;
             ready <= 0;
@@ -203,6 +226,14 @@ module cpu #(
           end
           A_DECREMENT: begin
             weight_pointer <= (weight_pointer == 0)? (WEIGHT_LENGTH - 1) : weight_pointer - 1; // decrement by 1, rolling over if too small
+            ready <= 1;
+          end
+          W_INCREMENT: begin
+            w_register <= (w_register == 255)? 0 : w_register + 1; // increment by 1, rolling over if too large
+            ready <= 1;
+          end
+          W_DECREMENT: begin
+            w_register <= (w_register == 0)? 255 : w_register - 1; // decrement by 1, rolling over if too small
             ready <= 1;
           end
           default: begin
@@ -303,6 +334,11 @@ module cpu #(
             inference_valid_out <= 1;
             ready <= 1;
           end
+          OUTPUT_W: begin
+            inference_out <= {inference_out, w_register[7:0]};
+            inference_valid_out <= 1;
+            ready <= 1;
+          end
           default: begin
             inference_valid_out <= 0;
           end
@@ -342,6 +378,18 @@ module cpu #(
           heap_pointer <= instruction_in;
           ready <= instruction_valid_in;
           instruction_pointer <= instruction_valid_in? instruction_pointer + 1 : instruction_pointer;
+        end
+        JUMP_IF_0: begin
+          if (instruction_valid_in) begin
+            ready <= 1'b1;
+            instruction_pointer <= instruction_in;
+          end
+        end
+        JUMP_IF_NOT_0: begin
+          if (instruction_valid_in) begin
+            ready <= 1'b1;
+            instruction_pointer <= instruction_in;
+          end
         end
         default: begin
           // do nothing

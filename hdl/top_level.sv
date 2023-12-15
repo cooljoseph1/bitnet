@@ -2,13 +2,13 @@
 `default_nettype none // prevents system from inferring an undeclared logic (good practice)
  
 module top_level #(
-  parameter DATA_ADDRS = 512,
-	parameter DATA_SIZE = 2048,
-	parameter DATA_BRAM_WIDTH = 64,
-	parameter WEIGHT_ADDRS = 128,
-	parameter WEIGHT_SIZE = 3072,
-	parameter WEIGHT_BRAM_WIDTH = 64,
-	parameter HEAP_ADDRS = 128,
+  parameter DATA_ADDRS = 1,
+	parameter DATA_SIZE = 1024,
+	parameter DATA_BRAM_WIDTH = 8,
+	parameter WEIGHT_ADDRS = 512,
+	parameter WEIGHT_SIZE = 16,
+	parameter WEIGHT_BRAM_WIDTH = 8,
+	parameter HEAP_ADDRS = 1,
   parameter OP_ADDRS = 1024,
   parameter OP_SIZE = 8,
   parameter OP_BRAM_WIDTH = 8
@@ -34,11 +34,14 @@ module top_level #(
   logic [15:0] comm_debug;
   // assign led = instruction_cpu_addr;
   // assign led = data_cpu_addr;
+  logic [6:0] ssc;
   seven_segment_controller left_digits (.clk_in(clk_100mhz),
                                 .rst_in(sys_rst),
                                 .val_in(cpu_inference_out),
-                                .cat_out(ss0_c),
+                                .cat_out(ssc),
                                 .an_out({ss0_an, ss1_an}));
+  assign ss0_c = ssc;
+  assign ss1_c = ssc;
   // seven_segment_controller right_digits (.clk_in(clk_100mhz),
   //                               .rst_in(sys_rst),
   //                               .val_in(instruction),
