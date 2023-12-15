@@ -53,7 +53,7 @@ def bnetwork(stack, trits, layers):
         ops += op
     return stack, ops
 
-def train(trits, layers, mnist=True):
+def train(trits, layers):
     stack = 0
     ops = ["SET_X_TO_VALUE_AT_D0", "D_INCREMENT"]
     stack, op = network(stack, trits, layers)
